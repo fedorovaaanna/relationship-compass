@@ -113,6 +113,32 @@
   .category h3{font-size:15.5px;margin:0 0 2px;display:flex;align-items:center;gap:8px;}
   .category .cat-desc{font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;}
   .cat-score{font-size:11px;color:var(--ink-soft);margin-bottom:10px;font-style:italic;}
+  .discuss-prompt{
+    font-size:12.5px;font-style:italic;color:var(--sage);background:#F1F5F0;
+    border-left:3px solid var(--sage);padding:8px 10px;border-radius:0 8px 8px 0;margin-bottom:12px;
+  }
+  .discuss-prompt div{margin-bottom:3px;}
+  .discuss-prompt div:last-child{margin-bottom:0;}
+  .discuss-box{
+    background:#F1F5F0;border-left:3px solid var(--sage);border-radius:0 8px 8px 0;
+    padding:0 12px;margin-bottom:12px;
+  }
+  .discuss-box summary{
+    cursor:pointer;padding:9px 0;font-size:12.5px;font-weight:700;color:var(--sage);
+    list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .discuss-box summary::-webkit-details-marker{display:none;}
+  .discuss-box summary:after{content:"▸";margin-left:auto;transition:transform .15s;font-size:11px;}
+  .discuss-box[open] summary:after{transform:rotate(90deg);}
+  .discuss-box .q-count{font-weight:400;font-style:italic;font-size:11px;opacity:.8;}
+  .discuss-body{padding:2px 0 12px;}
+  .disc-q{margin-bottom:12px;}
+  .disc-q:last-child{margin-bottom:4px;}
+  .disc-q label{display:block;font-size:12.5px;font-style:italic;color:var(--ink);margin-bottom:5px;}
+  .disc-q textarea{
+    width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;
+    font-family:'PT Sans';resize:vertical;min-height:34px;background:#fff;
+  }
   .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
   .chip{
     border:1.5px solid var(--line);border-radius:999px;padding:5px 12px 5px 8px;font-size:12.5px;cursor:pointer;
@@ -194,6 +220,8 @@
   @media print{
     body{background:#fff;}
     .lang-toggle,.mode-select,.download-row,.actions,.history-section,details.why{display:none !important;}
+    .discuss-box .discuss-body{display:block !important;}
+    .discuss-box summary:after{display:none;}
     .chip{border:1px solid #999;}
     .btn{display:none !important;}
   }
@@ -209,8 +237,8 @@
   бесплатно, open source, без cookies) — раскомментируйте и впишите
   свой код после регистрации:
 
-  <script data-goatcounter="https://annafedorova.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+  <script data-goatcounter="https://ВАШ-КОД.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
 
   Или Cloudflare Web Analytics (тоже без cookies) — если сайт уже
   на Cloudflare Pages, просто включите его в дашборде Cloudflare,
@@ -324,13 +352,79 @@ const T = {
         "За что ты мне благодарен(на) на этой неделе?"
       ]
     },
+    reviewByThemeHead: "Разбор по темам",
+    reviewByThemeSub: "Те же шесть тем, что и в еженедельном чек-ине, но с горизонтом в квартал — пройдитесь не спеша и ответьте вместе.",
+    reviewByThemeSubAnnual: "Те же шесть тем, что и в еженедельном чек-ине, но с горизонтом в целый год — на это стоит выделить отдельный вечер.",
+    quarterlyReview: {
+      temp: [
+        "Как ты в целом чувствовал(а) себя в отношениях этот квартал — по шкале от 1 до 10?",
+        "Были ли периоды, когда ты чувствовал(а) себя недооценённым(ой) или непонятым(ой)?",
+        "Был ли отрезок, когда тебе не хватало поддержки?"
+      ],
+      connection: [
+        "Достаточно ли у нас было близости и времени вдвоём за эти три месяца?",
+        "Есть ли что-то, чем ты давно хотел(а) поделиться, но так и не сказал(а)?",
+        "Что за квартал заставляло тебя чувствовать себя особенно любимым(ой)?"
+      ],
+      conflict: [
+        "Какая тема за квартал задевала, но мы её обходили?",
+        "Есть ли повторяющийся конфликт, который пора разобрать по-настоящему?",
+        "Как мы в целом справлялись с разногласиями эти три месяца — что работало, что нет?"
+      ],
+      logistics: [
+        "Накопились ли бытовые, финансовые или организационные вопросы, которые пора решить?",
+        "Справедливо ли распределялись обязанности в этом квартале?",
+        "Нужна ли кому-то из нас разгрузка в следующем квартале?"
+      ],
+      growth: [
+        "Чего ты хочешь для себя в следующем квартале — и как я могу поддержать?",
+        "Движемся ли мы к тому, что важно нам обоим (цели, планы, ценности)?",
+        "Что мы давно хотели попробовать вместе, но так и не сделали?"
+      ],
+      closing: [
+        "Какой момент этого квартала между нами был лучшим?",
+        "За что ты благодарен(на) мне и нам за эти три месяца?"
+      ]
+    },
+    annualReview: {
+      temp: [
+        "Как ты в целом оцениваешь этот год в отношениях — по шкале от 1 до 10?",
+        "Были ли в этом году периоды, когда ты чувствовал(а) себя недооценённым(ой) или одиноким(ой) рядом?",
+        "В какие времена года тебе особенно не хватало поддержки?"
+      ],
+      connection: [
+        "Хватало ли нам близости и настоящего времени вдвоём в этом году?",
+        "Что важное ты так и не решился(ась) сказать за этот год?",
+        "Что в этом году сильнее всего давало тебе чувствовать себя любимым(ой)?"
+      ],
+      conflict: [
+        "Какой конфликт этого года был самым тяжёлым — и чему он нас научил?",
+        "Остались ли с этого года обиды, которые мы так и не проговорили?",
+        "Научились ли мы за год справляться с разногласиями лучше?"
+      ],
+      logistics: [
+        "Как в этом году у нас было устроено с бытом, деньгами и организацией жизни?",
+        "Было ли распределение нагрузки справедливым на протяжении года?",
+        "Что в практической стороне жизни хочется перестроить в новом году?"
+      ],
+      growth: [
+        "Чего ты хочешь для себя в новом году — и как я могу быть рядом в этом?",
+        "Двигались ли мы в этом году к тому, что важно нам обоим?",
+        "Что мы мечтали сделать вместе, но за год так и не дошли?"
+      ],
+      closing: [
+        "Какой момент этого года между нами ты хочешь запомнить навсегда?",
+        "За что ты больше всего благодарен(на) мне и нам за этот год?"
+      ]
+    },
     quarterlyTitle: "Квартальный чек-ин",
-    quarterlySub: "Короткая версия · 10–15 минут",
-    annualTitle: "Годовое ревью",
+    quarterlySub: "Короткая версия · около 1 часа",
+    annualTitle: "Ежегодный чек-ин",
     annualSub: "Полная версия · запланируйте удобное время",
     dateLabel: "Дата ревью:",
     compassHead: "Компас на сегодня",
     compassSub: "Форма компаса складывается из того, что вы отметили в меню ниже — «обязательно» и «хотелось бы» тянут область вверх, «не обсуждается» — вниз.",
+    compassQuarterlyNote: "💬 Для обсуждения: пунктирная форма — ваш прошлый квартал. Какая область изменилась сильнее всего — и почему?",
     legendMore: "Больше значений в этой области",
     legendLess: "Меньше / не обсуждается",
     menuHead: "Меню компонентов отношений",
@@ -437,6 +531,146 @@ const T = {
       autonomy: "Личное пространство, другие связи, баланс власти в паре.",
       misc: "Всё, что не поместилось в другие категории — впишите сами."
     },
+    discussLabel: "💬 Разобрать тему глубже",
+    discussLabelAnnual: "💬 Разобрать тему за год",
+    discussHint: "вопросов",
+    catDiscuss: {
+      commitment: [
+        "Поменялось ли что-то в наших ожиданиях друг от друга за последние три месяца?",
+        "Есть ли договорённости, которые пора обновить или проговорить заново?",
+        "Чувствуем ли мы оба уверенность в завтрашнем дне наших отношений?",
+        "Есть ли тема про общее будущее, которую мы откладываем?",
+        "Какие обещания друг другу мы сдержали, а какие — нет?",
+        "Что для каждого из нас сейчас значит «быть вместе»?"
+      ],
+      physical: [
+        "Как в целом ощущалась близость в последние три месяца?",
+        "Чего хотелось бы больше, а чего — меньше?",
+        "Легко ли нам говорить друг с другом о желаниях и границах?",
+        "Есть ли что-то новое, что хотелось бы попробовать вместе?",
+        "Что в последнее время сближало нас телесно?",
+        "Есть ли что-то, что мешает расслабиться и быть открытыми?"
+      ],
+      emotional: [
+        "Чувствовали ли мы поддержку друг друга в трудные моменты этого квартала?",
+        "Было ли что-то, чем хотелось поделиться, но не получилось?",
+        "Когда за последнее время я чувствовал(а) себя особенно близко к партнёру?",
+        "Что помогает каждому из нас раскрываться?",
+        "Умеем ли мы замечать, когда другому тяжело?",
+        "Чего мне не хватает в эмоциональной близости прямо сейчас?"
+      ],
+      communication: [
+        "Как нам в целом удавалось разговаривать о сложном?",
+        "Были ли моменты, когда один из нас чувствовал себя неуслышанным?",
+        "Есть ли тема, которую мы оба обходим стороной?",
+        "Что в том, как общается партнёр, я ценю больше всего?",
+        "Как мы обычно миримся после ссоры — и работает ли это?",
+        "Что я могу делать иначе, чтобы партнёру было легче со мной говорить?"
+      ],
+      social: [
+        "Как прошло время с друзьями и близкими друг друга в этом квартале?",
+        "Комфортно ли нам в том, как мы появляемся как пара на людях?",
+        "Есть ли вокруг люди, которые влияют на нас — к лучшему или к худшему?",
+        "Хотим ли мы что-то изменить в балансе «наше время» и «время с другими»?",
+        "Чувствую ли я себя частью мира партнёра, а он(а) — моего?",
+        "Есть ли отношения с близкими, которые стоит выстроить иначе?"
+      ],
+      quality: [
+        "Было ли в этом квартале достаточно качественного времени вдвоём?",
+        "Какой момент вместе запомнился больше всего?",
+        "Что мешает нам проводить больше времени вместе?",
+        "Какое совместное занятие хотелось бы вернуть или завести?",
+        "Когда мы вместе — мы правда вместе, или каждый в телефоне?",
+        "Какой была бы идеальная неделя для нас двоих?"
+      ],
+      financial: [
+        "Изменилось ли что-то в наших финансовых договорённостях за квартал?",
+        "Остались ли денежные вопросы, которые стоит обсудить?",
+        "Чувствуем ли мы оба, что распределение справедливо?",
+        "Есть ли общая финансовая цель на ближайшее время?",
+        "Легко ли нам вообще говорить о деньгах?",
+        "Есть ли финансовое напряжение, о котором мы молчим?"
+      ],
+      autonomy: [
+        "Чувствовали ли мы баланс между «вместе» и «порознь» в этом квартале?",
+        "Хватало ли личного пространства каждому?",
+        "Поддерживаем ли мы увлечения и связи друг друга вне пары?",
+        "Было ли ощущение, что чьи-то границы нарушались?",
+        "Есть ли что-то, что я перестал(а) делать ради отношений и скучаю по этому?",
+        "Доверяем ли мы друг другу то время, что проводим порознь?"
+      ],
+      misc: [
+        "Было ли за эти три месяца что-то важное, что не попало в другие категории?",
+        "Есть ли что-то, за что хочется сказать спасибо прямо сейчас?",
+        "О чём мы давно хотели поговорить, но всё не доходило?",
+        "Что бы каждый из нас изменил в следующем квартале, будь такая возможность?",
+        "Есть ли что-то, что я давно хотел(а) спросить у партнёра?"
+      ]
+    },
+    catDiscussAnnual: {
+      commitment: [
+        "Как за этот год изменились наши обязательства друг перед другом?",
+        "Какие совместные решения этого года были самыми важными?",
+        "Стали ли мы чувствовать себя надёжнее друг с другом за год?",
+        "Какие договорённости прошлого года сработали, а какие — нет?",
+        "Куда мы хотим прийти вместе за следующий год?"
+      ],
+      physical: [
+        "Как менялась наша близость на протяжении года?",
+        "Были ли периоды отдаления — с чем они были связаны?",
+        "Что в этом году добавляло нам телесной близости?",
+        "Насколько открыто мы говорили о сексе и желаниях за год?",
+        "Чего хочется в этой сфере в новом году?"
+      ],
+      emotional: [
+        "Стали ли мы ближе эмоционально за этот год?",
+        "В какие моменты года я особенно чувствовал(а) поддержку?",
+        "Были ли обиды, которые так и не проговорили?",
+        "Что нового мы узнали друг о друге за год?",
+        "Как мы хотим заботиться о чувствах друг друга дальше?"
+      ],
+      communication: [
+        "Как изменилось наше общение за год?",
+        "Научились ли мы лучше справляться с конфликтами?",
+        "Какой разговор этого года был самым важным?",
+        "Есть ли темы, которые мы так и не решились обсудить?",
+        "Что хотим поменять в том, как разговариваем?"
+      ],
+      social: [
+        "Как за год вписались друг в друга наши круги общения?",
+        "Были ли внешние люди или ситуации, что влияли на нас?",
+        "Комфортно ли нам как паре среди других за этот год?",
+        "С кем из близких стало теплее, а с кем — сложнее?",
+        "Каким мы хотим видеть наше место среди людей в новом году?"
+      ],
+      quality: [
+        "Хватало ли нам качественного времени вдвоём в этом году?",
+        "Какие совместные моменты года хочется сохранить в памяти?",
+        "Что крало наше время друг у друга?",
+        "Какие традиции вдвоём у нас появились или исчезли?",
+        "Как хотим проводить время вместе в следующем году?"
+      ],
+      financial: [
+        "Как мы справлялись с деньгами как пара в этом году?",
+        "Были ли финансовые решения, которыми мы гордимся или о которых жалеем?",
+        "Стало ли нам легче говорить о деньгах за год?",
+        "Справедливо ли, на наш взгляд, распределялись расходы?",
+        "Какие финансовые цели ставим на новый год?"
+      ],
+      autonomy: [
+        "Удавалось ли сохранять себя и своё пространство в отношениях весь год?",
+        "Поддерживали ли мы рост и увлечения друг друга?",
+        "Были ли моменты, когда я растворялся(ась) в отношениях или, наоборот, отдалялся(ась)?",
+        "Уважали ли мы границы друг друга в этом году?",
+        "Сколько «времени для себя» хочется каждому в новом году?"
+      ],
+      misc: [
+        "Что из этого года не попало ни в одну категорию, но важно?",
+        "За что я больше всего благодарен(на) нам как паре в этом году?",
+        "Что было самым большим уроком года для наших отношений?",
+        "Если бы у года наших отношений было название — какое?"
+      ]
+    },
     catComponents: {
       commitment: ["Брак","Рождение детей вместе","Совместное воспитание детей от других партнёрств","Общие питомцы","Наличие ключа друг от друга","Совместное проживание","Совместное владение жильём","Приоритет над другими партнёрами","Определение статуса отношений","Планирование совместного будущего","Ожидание долгосрочных отношений","Готовность преодолевать трудности вместе","Забота о поддержании отношений","Доверенность/завещание друг на друга","Поддержка при проблемах со здоровьем"],
       physical: ["Физическая нежность","Проявления нежности на публике","Совместимость по либидо","Сексуальная химия","Оргазмы","Поцелуи","Оральный секс","Мануальный секс (пальцами)","Взаимная мастурбация","Проникающий секс","Использование секс-игрушек","Презервативы/барьерные средства","Регулярные анализы на ИППП","Кинк/BDSM-практики","Групповой секс"],
@@ -504,13 +738,79 @@ const T = {
         "What are you grateful to me for this week?"
       ]
     },
+    reviewByThemeHead: "Theme-by-theme review",
+    reviewByThemeSub: "The same six themes as the weekly check-in, but over a quarter's horizon — take your time and answer together.",
+    reviewByThemeSubAnnual: "The same six themes as the weekly check-in, but over a whole year — worth setting aside an evening for.",
+    quarterlyReview: {
+      temp: [
+        "How did you generally feel in the relationship this quarter — on a scale of 1 to 10?",
+        "Were there stretches where you felt undervalued or misunderstood?",
+        "Was there a period when you lacked support?"
+      ],
+      connection: [
+        "Did we have enough closeness and time together over these three months?",
+        "Is there something you've long wanted to share but never said?",
+        "What made you feel especially loved this quarter?"
+      ],
+      conflict: [
+        "What topic kept touching a nerve this quarter but we avoided it?",
+        "Is there a recurring conflict it's time to really work through?",
+        "How did we generally handle disagreements these three months — what worked, what didn't?"
+      ],
+      logistics: [
+        "Have household, financial, or organizational matters piled up that need deciding?",
+        "Were responsibilities shared fairly this quarter?",
+        "Does either of us need some relief next quarter?"
+      ],
+      growth: [
+        "What do you want for yourself next quarter — and how can I support it?",
+        "Are we moving toward what matters to both of us (goals, plans, values)?",
+        "What have we long wanted to try together but never did?"
+      ],
+      closing: [
+        "What was the best moment between us this quarter?",
+        "What are you grateful to me, and to us, for these three months?"
+      ]
+    },
+    annualReview: {
+      temp: [
+        "How would you rate this year in the relationship overall — on a scale of 1 to 10?",
+        "Were there periods this year you felt undervalued or lonely even together?",
+        "Which times of year did you most lack support?"
+      ],
+      connection: [
+        "Did we have enough closeness and real time together this year?",
+        "What important thing did you never bring yourself to say this year?",
+        "What made you feel most loved this year?"
+      ],
+      conflict: [
+        "What was the hardest conflict of the year — and what did it teach us?",
+        "Are there hurts left over from this year we never talked through?",
+        "Did we get better at handling disagreements over the year?"
+      ],
+      logistics: [
+        "How did household, money, and the logistics of life work for us this year?",
+        "Was the load shared fairly throughout the year?",
+        "What about the practical side of life do we want to rebuild next year?"
+      ],
+      growth: [
+        "What do you want for yourself next year — and how can I be there for it?",
+        "Did we move toward what matters to both of us this year?",
+        "What did we dream of doing together but never got to this year?"
+      ],
+      closing: [
+        "Which moment between us this year do you want to remember forever?",
+        "What are you most grateful to me, and to us, for this year?"
+      ]
+    },
     quarterlyTitle: "Quarterly check-in",
-    quarterlySub: "Short version · 10–15 minutes",
-    annualTitle: "Annual review",
+    quarterlySub: "Short version · about 1 hour",
+    annualTitle: "Annual check-in",
     annualSub: "Full version · set aside some time",
     dateLabel: "Review date:",
     compassHead: "Today's compass",
     compassSub: "The compass shape comes from what you mark in the menu below — \"must-have\" and \"like to have\" pull an area up, \"off limits\" pulls it down.",
+    compassQuarterlyNote: "💬 To discuss: the dashed shape is your last quarter. Which area shifted the most — and why?",
     legendMore: "More weight in this area",
     legendLess: "Less / off limits",
     menuHead: "Relationship components menu",
@@ -616,6 +916,146 @@ const T = {
       financial: "Money: from a shared vacation fund to full financial integration.",
       autonomy: "Personal space, other connections, balance of power in the couple.",
       misc: "Anything that didn't fit the other categories — add your own."
+    },
+    discussLabel: "💬 Unpack this topic",
+    discussLabelAnnual: "💬 Reflect on this topic over the year",
+    discussHint: "questions",
+    catDiscuss: {
+      commitment: [
+        "Did anything change in what we expect from each other these past three months?",
+        "Are there agreements that need updating or talking through again?",
+        "Do we both feel secure about where our relationship is heading?",
+        "Is there a topic about our shared future we keep putting off?",
+        "Which promises to each other did we keep, and which didn't we?",
+        "What does 'being together' mean to each of us right now?"
+      ],
+      physical: [
+        "How has intimacy generally felt these past three months?",
+        "What would we like more of, and less of?",
+        "Is it easy for us to talk about desires and boundaries?",
+        "Is there something new we'd like to try together?",
+        "What has brought us physically closer lately?",
+        "Is there anything stopping us from relaxing and being open?"
+      ],
+      emotional: [
+        "Did we feel supported by each other during hard moments this quarter?",
+        "Was there something we wanted to share but didn't?",
+        "When did I feel especially close to my partner recently?",
+        "What helps each of us open up?",
+        "Are we good at noticing when the other is struggling?",
+        "What am I missing in our emotional closeness right now?"
+      ],
+      communication: [
+        "How well did we manage to talk about hard things?",
+        "Were there moments either of us felt unheard?",
+        "Is there a topic we both tend to avoid?",
+        "What do I most appreciate about how my partner communicates?",
+        "How do we usually make up after a fight — and does it work?",
+        "What could I do differently to make it easier for my partner to talk to me?"
+      ],
+      social: [
+        "How did time with each other's friends and family go this quarter?",
+        "Are we comfortable with how we show up as a couple in public?",
+        "Are there people around us who affect us — for better or worse?",
+        "Do we want to change the balance of 'our time' vs 'time with others'?",
+        "Do I feel part of my partner's world, and they of mine?",
+        "Are there relationships with loved ones worth handling differently?"
+      ],
+      quality: [
+        "Did we get enough quality time together this quarter?",
+        "Which moment together stood out the most?",
+        "What gets in the way of spending more time together?",
+        "What shared activity would we like to bring back or start?",
+        "When we're together, are we really together — or each on our phones?",
+        "What would an ideal week for the two of us look like?"
+      ],
+      financial: [
+        "Did anything change in our financial arrangements this quarter?",
+        "Are there money questions still worth discussing?",
+        "Do we both feel the split is fair?",
+        "Is there a shared financial goal for the near future?",
+        "Is it even easy for us to talk about money?",
+        "Is there financial tension we're staying quiet about?"
+      ],
+      autonomy: [
+        "Did we feel a good balance between togetherness and apart-time this quarter?",
+        "Did each of us have enough personal space?",
+        "Do we support each other's interests and connections outside the couple?",
+        "Did it ever feel like someone's boundaries were crossed?",
+        "Is there something I stopped doing for the relationship that I miss?",
+        "Do we trust each other with the time we spend apart?"
+      ],
+      misc: [
+        "Was there anything important this quarter that didn't fit the other categories?",
+        "Is there something we'd like to say thank you for right now?",
+        "What have we been meaning to talk about but never got to?",
+        "What would each of us change about the next quarter if we could?",
+        "Is there something I've long wanted to ask my partner?"
+      ]
+    },
+    catDiscussAnnual: {
+      commitment: [
+        "How did our commitments to each other change over this year?",
+        "Which shared decisions this year were the most important?",
+        "Did we come to feel more secure with each other over the year?",
+        "Which of last year's agreements worked, and which didn't?",
+        "Where do we want to arrive together over the next year?"
+      ],
+      physical: [
+        "How did our intimacy shift over the course of the year?",
+        "Were there periods of distance — what were they tied to?",
+        "What added to our physical closeness this year?",
+        "How openly did we talk about sex and desires over the year?",
+        "What do we want in this area in the new year?"
+      ],
+      emotional: [
+        "Did we grow emotionally closer over this year?",
+        "At which moments of the year did I feel especially supported?",
+        "Were there hurts we never talked through?",
+        "What new things did we learn about each other this year?",
+        "How do we want to care for each other's feelings going forward?"
+      ],
+      communication: [
+        "How did our communication change over the year?",
+        "Did we get better at handling conflict?",
+        "What was the most important conversation of this year?",
+        "Are there topics we never dared to discuss?",
+        "What do we want to change in how we talk?"
+      ],
+      social: [
+        "How did our social circles fit together over the year?",
+        "Were there outside people or situations that affected us?",
+        "Were we comfortable as a couple among others this year?",
+        "With which loved ones did things warm up, and with which got harder?",
+        "How do we want to see our place among people in the new year?"
+      ],
+      quality: [
+        "Did we have enough quality time together this year?",
+        "Which shared moments of the year do we want to keep in memory?",
+        "What stole our time from each other?",
+        "Which rituals for the two of us appeared or disappeared?",
+        "How do we want to spend time together next year?"
+      ],
+      financial: [
+        "How did we handle money as a couple this year?",
+        "Were there financial decisions we're proud of or regret?",
+        "Did talking about money get easier over the year?",
+        "In our view, were expenses shared fairly?",
+        "What financial goals are we setting for the new year?"
+      ],
+      autonomy: [
+        "Did we manage to keep ourselves and our own space all year?",
+        "Did we support each other's growth and interests?",
+        "Were there moments I dissolved into the relationship, or pulled away?",
+        "Did we respect each other's boundaries this year?",
+        "How much 'time for myself' does each of us want in the new year?"
+      ],
+      misc: [
+        "What from this year fit no category but still matters?",
+        "What am I most grateful for about us as a couple this year?",
+        "What was the biggest lesson of the year for our relationship?",
+        "If the year of our relationship had a title — what would it be?"
+      ]
     },
     catComponents: {
       commitment: ["Marriage","Pregnancy/children together","Coparenting children from other partnerships","Sharing pet(s)","Having a key","Cohabitation","Home ownership","Prioritization over other partners","Relationship labels","Planning for future","Expectation of long term involvement","Commitment to working through challenges","Commitment to relationship maintenance","Power of attorney/wills","Support through health challenges"],
@@ -802,7 +1242,7 @@ function itemChip(catId, key, label){
   return `<span class="chip st-${cls}" onclick="cycleItem('${catId}','${esc(key)}')"><span class="ic">${sym}</span>${esc(label)}</span>`;
 }
 
-function categoryBlock(catId){
+function categoryBlock(catId, discussMode){
   const t = tr();
   const defaultComps = t.catComponents[catId];
   const customComps = state.customComponents[catId];
@@ -810,11 +1250,36 @@ function categoryBlock(catId){
   const chips = allComps.map(c=> itemChip(catId, c.key, c.label)).join("");
   const score = computeCategoryScore(state.checked, catId);
   const scoreLabel = state.lang==="ru" ? `Текущий вес области: ${score.toFixed(1)} из 5` : `Current weight: ${score.toFixed(1)} of 5`;
+  let discussHtml = "";
+  if(discussMode){
+    const isAnn = discussMode === "annual";
+    const set = isAnn ? t.catDiscussAnnual : t.catDiscuss;
+    const prompts = (set && set[catId]) ? set[catId] : [];
+    const label = isAnn ? t.discussLabelAnnual : t.discussLabel;
+    const keyPrefix = isAnn ? "disca_" : "disc_";
+    if(prompts.length){
+      discussHtml = `
+    <details class="discuss-box"${isAnn ? " open" : ""}>
+      <summary>${label} <span class="q-count">${prompts.length} ${t.discussHint}</span></summary>
+      <div class="discuss-body">
+        ${prompts.map((p,i)=>{
+          const key = keyPrefix+catId+"_"+i;
+          const val = esc(state.answers[key] || "");
+          return `<div class="disc-q">
+            <label>${p}</label>
+            <textarea oninput="updateAnswer('${key}', this.value)">${val}</textarea>
+          </div>`;
+        }).join("")}
+      </div>
+    </details>`;
+    }
+  }
   return `
   <div class="category">
     <h3 style="color:${CAT_COLOR[catId]}">${t.catNames[catId]}</h3>
     <div class="cat-desc">${t.catDesc[catId]}</div>
     <div class="cat-score">${scoreLabel}</div>
+    ${discussHtml}
     <div class="chips">${chips}</div>
     <div class="add-row">
       <input type="text" placeholder="${t.addPlaceholder}" id="add-${catId}" onkeydown="if(event.key==='Enter'){addCustom('${catId}')}">
@@ -840,12 +1305,21 @@ function tripletInput(key, placeholder){
 function weeklyBlock(){
   const t = tr();
   let out = `<div class="tip-box">${t.weeklyTips}</div>`;
+  out += reviewThemeBlock(t.weeklyQuestions, "w_");
+  return out;
+}
+
+// Reusable six-theme open-question block (temp/connection/conflict/
+// logistics/growth/closing). Used by weekly, quarterly and annual.
+function reviewThemeBlock(questionSet, keyPrefix){
+  const t = tr();
+  let out = "";
   WEEKLY_SECTIONS.forEach(s=>{
     const head = t.weeklySectionHeads[s];
-    const qs = t.weeklyQuestions[s];
+    const qs = questionSet[s] || [];
     out += `<div class="sub-block"><h3>${head}</h3>`;
     qs.forEach((q, qi)=>{
-      const key = `w_${s}_${qi}`;
+      const key = `${keyPrefix}${s}_${qi}`;
       const multiline = !(s==="temp" && qi===0);
       out += qa(key, q, multiline);
     });
@@ -1063,6 +1537,7 @@ function render(){
       <div class="section-sub">${t.compassSub}</div>
       <div class="compass-wrap">${radarSVG(currentScores, 300, compareScores)}</div>
       <div class="compass-legend">${legendChips}</div>
+      ${(!isAnnual && compareScores) ? `<div class="discuss-prompt" style="max-width:420px;margin-left:auto;margin-right:auto;">${t.compassQuarterlyNote}</div>` : ""}
     </div>
 
     <div class="section">
@@ -1074,7 +1549,7 @@ function render(){
         <span class="li"><span class="ic st-maybe">${STATE_SYMBOL[3]}</span>${t.rateMaybe}</span>
         <span class="li"><span class="ic st-off">${STATE_SYMBOL[4]}</span>${t.rateOff}</span>
       </div>
-      ${CAT_ORDER.map(c=>categoryBlock(c)).join("")}
+      ${CAT_ORDER.map(c=>categoryBlock(c, isWeekly ? null : (isAnnual ? "annual" : "quarterly"))).join("")}
     </div>
     ` : ""}
 
@@ -1097,6 +1572,12 @@ function render(){
       </div>
       ${growthBlock()}
       ${boundariesBlock()}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.reviewByThemeHead}</h2></div>
+      <div class="section-sub">${t.reviewByThemeSubAnnual}</div>
+      ${reviewThemeBlock(t.annualReview, "ar_")}
     </div>
 
     <div class="section">
@@ -1129,6 +1610,12 @@ function render(){
       ${qa("q1", t.q1)}
       ${qa("q2", t.q2)}
       ${qa("q3", t.q3)}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.reviewByThemeHead}</h2></div>
+      <div class="section-sub">${t.reviewByThemeSub}</div>
+      ${reviewThemeBlock(t.quarterlyReview, "qr_")}
     </div>
     `}
 

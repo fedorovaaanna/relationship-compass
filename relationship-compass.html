@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Компас отношений / Relationship Compass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F1E7;
+    --paper-2:#EFE6D6;
+    --ink:#2B2724;
+    --ink-soft:#5B534B;
+    --rose:#AD5D68;
+    --rose-deep:#8C4650;
+    --sage:#5F7864;
+    --gold:#B8934A;
+    --line:#D8CBB2;
+    --off:#8A8378;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'PT Sans', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'PT Serif', serif;}
+  .wrap{max-width:780px;margin:0 auto;padding:28px 20px 90px;}
+
+  /* header */
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:12px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand svg{flex-shrink:0;}
+  .brand-text .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--rose-deep);font-weight:700;}
+  .brand-text h1{font-size:22px;margin:2px 0 0;font-weight:700;}
+  .lang-toggle{display:flex;border:1.5px solid var(--ink);border-radius:20px;overflow:hidden;flex-shrink:0;}
+  .lang-toggle button{
+    border:none;background:transparent;padding:7px 16px;font-family:'PT Sans';font-size:13px;font-weight:700;
+    cursor:pointer;color:var(--ink); letter-spacing:.03em;
+  }
+  .lang-toggle button.active{background:var(--ink);color:var(--paper);}
+
+  /* intro */
+  .intro{margin-bottom:8px;}
+  .intro p{color:var(--ink-soft);font-size:15px;}
+  .intro .lede{font-size:17px;font-family:'PT Serif';font-style:italic;color:var(--ink);margin-bottom:14px;}
+  details.why{margin:14px 0 24px;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-2);padding:2px 16px;}
+  details.why summary{cursor:pointer;font-weight:700;padding:12px 0;color:var(--rose-deep);list-style:none;}
+  details.why summary::-webkit-details-marker{display:none;}
+  details.why summary:before{content:"◆ ";font-size:10px;}
+  details.why p{font-size:14px;color:var(--ink-soft);margin:0 0 14px;}
+  details.why ul{font-size:14px;color:var(--ink-soft);padding-left:18px;margin:0 0 14px;}
+
+  /* mode selector */
+  .mode-select{display:flex;gap:10px;margin:20px 0 8px;}
+  .mode-card{
+    flex:1;border:1.5px solid var(--ink);border-radius:var(--radius);padding:14px 16px;cursor:pointer;
+    background:var(--paper);transition:all .15s ease;
+  }
+  .mode-card.active{background:var(--ink);color:var(--paper);}
+  .mode-card .m-title{font-family:'PT Serif';font-weight:700;font-size:16px;}
+  .mode-card .m-sub{font-size:12.5px;opacity:.75;margin-top:3px;}
+
+  .download-row{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 18px;
+    border:1.5px dashed var(--rose-deep);border-radius:var(--radius);padding:14px 16px;background:var(--paper-2);
+  }
+  .download-row .btn{flex-shrink:0;}
+  .download-row .dl-hint{font-size:12.5px;color:var(--ink-soft);}
+
+  .date-row{display:flex;align-items:center;gap:10px;margin:18px 0 26px;font-size:14px;color:var(--ink-soft);}
+  .date-row input[type=date]{
+    font-family:'PT Sans';border:none;border-bottom:1.5px solid var(--ink);background:transparent;
+    padding:4px 2px;font-size:14px;color:var(--ink);
+  }
+
+  /* section card */
+  .section{margin-bottom:30px;}
+  .section-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+  .section-head .num{font-family:'PT Serif';font-style:italic;color:var(--gold);font-size:14px;}
+  .section-head h2{font-size:19px;margin:0;}
+  .section-sub{font-size:13.5px;color:var(--ink-soft);margin:2px 0 14px;}
+
+  /* compass radar */
+  .compass-wrap{display:flex;justify-content:center;margin:6px 0 10px;}
+  .compass-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:10px 18px;font-size:11.5px;color:var(--ink-soft);margin-bottom:18px;}
+  .compass-legend span{display:flex;align-items:center;gap:5px;}
+  .compass-legend .dotc{width:9px;height:9px;border-radius:2px;display:inline-block;}
+
+  /* rating legend for menu */
+  .rate-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--ink-soft);
+    border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:18px;background:var(--paper-2);}
+  .rate-legend .li{display:flex;align-items:center;gap:6px;}  .rate-legend .ic{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;flex-shrink:0;}
+  .ic.st-must{background:var(--rose-deep);color:#fff;}
+  .ic.st-like{background:#fff;border:2px solid var(--rose-deep);color:var(--rose-deep);}
+  .ic.st-maybe{background:#fff;border:2px dashed var(--gold);color:var(--gold);}
+  .ic.st-off{background:#fff;border:2px solid var(--off);color:var(--off);}
+
+  .tip-box{
+    border:1px solid var(--line);background:var(--paper-2);border-radius:10px;
+    padding:12px 16px;font-size:13px;color:var(--ink-soft);margin-bottom:22px;
+  }
+  .tip-box b{color:var(--ink);}
+
+  /* components menu */
+  .category{border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;background:#FFFDF8;}
+  .category h3{font-size:15.5px;margin:0 0 2px;display:flex;align-items:center;gap:8px;}
+  .category .cat-desc{font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;}
+  .cat-score{font-size:11px;color:var(--ink-soft);margin-bottom:10px;font-style:italic;}
+  .discuss-prompt{
+    font-size:12.5px;font-style:italic;color:var(--sage);background:#F1F5F0;
+    border-left:3px solid var(--sage);padding:8px 10px;border-radius:0 8px 8px 0;margin-bottom:12px;
+  }
+  .discuss-prompt div{margin-bottom:3px;}
+  .discuss-prompt div:last-child{margin-bottom:0;}
+  .discuss-box{
+    background:#F1F5F0;border-left:3px solid var(--sage);border-radius:0 8px 8px 0;
+    padding:0 12px;margin-bottom:12px;
+  }
+  .discuss-box summary{
+    cursor:pointer;padding:9px 0;font-size:12.5px;font-weight:700;color:var(--sage);
+    list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+  .discuss-box summary::-webkit-details-marker{display:none;}
+  .discuss-box summary:after{content:"▸";margin-left:auto;transition:transform .15s;font-size:11px;}
+  .discuss-box[open] summary:after{transform:rotate(90deg);}
+  .discuss-box .q-count{font-weight:400;font-style:italic;font-size:11px;opacity:.8;}
+  .discuss-body{padding:2px 0 12px;}
+  .disc-q{margin-bottom:12px;}
+  .disc-q:last-child{margin-bottom:4px;}
+  .disc-q label{display:block;font-size:12.5px;font-style:italic;color:var(--ink);margin-bottom:5px;}
+  .disc-q textarea{
+    width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;
+    font-family:'PT Sans';resize:vertical;min-height:34px;background:#fff;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+  .chip{
+    border:1.5px solid var(--line);border-radius:999px;padding:5px 12px 5px 8px;font-size:12.5px;cursor:pointer;
+    background:#fff;color:var(--ink-soft);transition:all .12s;user-select:none;display:inline-flex;align-items:center;gap:6px;
+  }
+  .chip .ic{width:15px;height:15px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:700;border:1.5px solid var(--line);flex-shrink:0;background:#fff;}
+  .chip.st-must{border-color:var(--rose-deep);color:var(--ink);font-weight:700;}
+  .chip.st-must .ic{background:var(--rose-deep);border-color:var(--rose-deep);color:#fff;}
+  .chip.st-like{border-color:var(--rose-deep);color:var(--ink);}
+  .chip.st-like .ic{border-color:var(--rose-deep);color:var(--rose-deep);}
+  .chip.st-maybe{border-color:var(--gold);color:var(--ink);}
+  .chip.st-maybe .ic{border:2px dashed var(--gold);color:var(--gold);}
+  .chip.st-off{border-color:var(--off);color:var(--off);text-decoration:line-through;opacity:.7;}
+  .chip.st-off .ic{border-color:var(--off);color:var(--off);}
+  .add-row{display:flex;gap:6px;}
+  .add-row input{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;font-family:'PT Sans';background:#fff;}
+  .add-row button{border:1px solid var(--ink);background:transparent;border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer;}
+  textarea.note{
+    width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-family:'PT Sans';
+    font-size:13px;margin-top:4px;background:#fff;resize:vertical;min-height:44px;
+  }
+
+  /* freeform questions */
+  .qa{margin-bottom:18px;}
+  .qa label{display:block;font-family:'PT Serif';font-style:italic;font-size:14.5px;margin-bottom:6px;color:var(--ink);}
+  .qa textarea, .qa input[type=text]{
+    width:100%;border:none;border-bottom:1.5px solid var(--line);background:transparent;
+    font-family:'PT Sans';font-size:14px;padding:6px 2px;resize:vertical;min-height:38px;color:var(--ink);
+  }
+  .qa textarea:focus,.qa input:focus{outline:none;border-bottom-color:var(--rose);}
+  .triplet{display:grid;grid-template-columns:1fr;gap:8px;}
+  .triplet input{border:none;border-bottom:1px solid var(--line);background:transparent;font-size:13.5px;padding:5px 2px;font-family:'PT Sans';}
+
+  /* actions */
+  .actions{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;}
+  .btn{
+    border-radius:24px;padding:12px 22px;font-family:'PT Sans';font-weight:700;font-size:14px;cursor:pointer;
+    border:1.5px solid var(--ink);
+  }
+  .btn.primary{background:var(--ink);color:var(--paper);}
+  .btn.ghost{background:transparent;color:var(--ink);}
+  .save-msg{font-size:13px;color:var(--sage);font-weight:700;align-self:center;opacity:0;transition:opacity .3s;}
+  .save-msg.show{opacity:1;}
+
+  /* history */
+  .history-list{border-top:1px solid var(--line);}
+  .hist-item{
+    display:flex;justify-content:space-between;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line);
+    font-size:13.5px;cursor:pointer;
+  }
+  .hist-item:hover{background:var(--paper-2);}
+  .hist-item .htype{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--rose-deep);font-weight:700;}
+  .hist-item .hdel{color:#a55;font-size:12px;cursor:pointer;}
+  .empty-note{font-size:13.5px;color:var(--ink-soft);font-style:italic;padding:14px 4px;}
+
+  .sub-block{margin-top:26px;padding-top:18px;border-top:1px dashed var(--line);}
+  .sub-block h3{font-size:15px;margin:0 0 4px;color:var(--rose-deep);font-family:'PT Serif';}
+  .sub-block .sub-desc{font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+
+  .growth-row, .life-row{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff;}
+  .life-row h4{margin:0 0 8px;font-size:13.5px;color:var(--rose-deep);font-family:'PT Serif';}
+  .field-label{font-size:10.5px;color:var(--ink-soft);display:block;margin:0 0 3px;text-transform:uppercase;letter-spacing:.04em;}
+  .field-block{margin-bottom:8px;}
+  .field-block:last-child{margin-bottom:0;}
+  .growth-row textarea, .life-row textarea{
+    width:100%;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-size:13px;
+    font-family:'PT Sans';resize:vertical;min-height:32px;background:var(--paper-2);
+  }
+  .row-actions{display:flex;justify-content:flex-end;margin-top:6px;}
+  .row-actions button{background:none;border:none;color:#a55;font-size:12px;cursor:pointer;padding:2px 4px;}
+  .add-row-btn{
+    border:1px dashed var(--ink);background:transparent;border-radius:8px;padding:8px 14px;
+    font-size:12.5px;cursor:pointer;font-family:'PT Sans';color:var(--ink-soft);
+  }
+
+  footer{margin-top:40px;text-align:center;font-size:12px;color:var(--ink-soft);}
+
+  @media print{
+    body{background:#fff;}
+    .lang-toggle,.mode-select,.download-row,.actions,.history-section,details.why{display:none !important;}
+    .discuss-box .discuss-body{display:block !important;}
+    .discuss-box summary:after{display:none;}
+    .chip{border:1px solid #999;}
+    .btn{display:none !important;}
+  }
+  @media (max-width:480px){
+    .mode-select{flex-direction:column;}
+    .brand-text h1{font-size:19px;}
+    .rate-legend{gap:10px;}
+  }
+</style>
+<!--
+  Аналитика (необязательно): чтобы считать заходы, не собирая ничьи
+  личные данные, можно подключить GoatCounter (goatcounter.com,
+  бесплатно, open source, без cookies) — раскомментируйте и впишите
+  свой код после регистрации:
+
+  <script data-goatcounter="https://ВАШ-КОД.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+
+  Или Cloudflare Web Analytics (тоже без cookies) — если сайт уже
+  на Cloudflare Pages, просто включите его в дашборде Cloudflare,
+  ничего вставлять сюда не нужно.
+-->
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ---------------------------------------------------------------
+   Storage layer: uses Claude's artifact window.storage when running
+   inside a Claude.ai artifact, and transparently falls back to the
+   browser's own localStorage when deployed as a standalone page.
+   localStorage never leaves the visitor's own browser — nothing is
+   ever sent to any server, so no one else's data is ever collected.
+--------------------------------------------------------------- */
+const LocalStore = {
+  async get(key){
+    try{
+      const v = localStorage.getItem(key);
+      return v !== null ? {key, value: v} : null;
+    }catch(e){ return null; }
+  },
+  async set(key, value){
+    try{ localStorage.setItem(key, value); return {key, value}; }
+    catch(e){ return null; }
+  },
+  async delete(key){
+    try{ localStorage.removeItem(key); return {key, deleted:true}; }
+    catch(e){ return null; }
+  },
+  async list(prefix){
+    try{
+      const keys = [];
+      for(let i=0;i<localStorage.length;i++){
+        const k = localStorage.key(i);
+        if(!prefix || (k && k.indexOf(prefix)===0)) keys.push(k);
+      }
+      return {keys, prefix};
+    }catch(e){ return null; }
+  }
+};
+const storage = (typeof window !== "undefined" && window.storage) ? window.storage : LocalStore;
+
+/* ---------------------------------------------------------------
+   Категории меню отношений (по мотивам "Non-Escalator Relationship
+   Menu") + переводы интерфейса
+--------------------------------------------------------------- */
+const WEEKLY_SECTIONS = ["temp","connection","conflict","logistics","growth","closing"];
+const LIFE_AREAS = ["relationship","health","finance","career","growth","friendship","hobby"];
+const CAT_ORDER = ["commitment","physical","emotional","communication","social","quality","financial","autonomy","misc"];
+const CAT_COLOR = {
+  commitment:"#8C4650", physical:"#AD5D68", emotional:"#B8934A", communication:"#5F7864",
+  social:"#4E7D8C", quality:"#7A6FA6", financial:"#9C6B3E", autonomy:"#3E7C6C", misc:"#6B645A"
+};
+
+const T = {
+  ru: {
+    eyebrow: "Компас для двоих (и больше)",
+    title: "Компас отношений",
+    lede: "Место, где мы честно смотрим на то, что построили — и решаем, куда расти дальше.",
+    introP1: "Это ежеквартальная и ежегодная практика для пар и семей (в любой конфигурации), вдохновлённая ретроспективами вроде YearCompass, исследованиями Готтмана об устойчивых отношениях и «меню компонентов отношений» из среды полиамории и relationship anarchy.",
+    whySummary: "Зачем это нужно и как этим пользоваться",
+    whyP1: "Большинство пар не разговаривают о состоянии отношений системно — только когда уже накопилось напряжение. Исследования Готтмана показывают, что устойчивые пары регулярно проверяют пять областей: дружбу и близость, безопасность, то, как они справляются с конфликтом, общий смысл жизни и индивидуальные тревоги каждого.",
+    whyP2: "Раздел «Меню» ниже — это инструмент для разговора, а не тест с правильными ответами. Он устроен по принципу «non-escalator»: вместо того, чтобы принимать отношения «по умолчанию» (брак → дети → ипотека), партнёры сами отмечают, что из перечисленного для них обязательно, желательно, под вопросом или неприемлемо — и вычёркивают или дописывают пункты под свою пару/семью.",
+    whyList: [
+      "Раз в квартал — короткий чек-ин (10–15 минут): что было хорошо, что было тяжело, на чём сфокусироваться.",
+      "Раз в год — большое ревью по образцу YearCompass: прошедший год семьи/пары целиком, и год впереди — с намерениями и договорённостями.",
+      "Каждая запись сохраняется с датой, поэтому со временем вы увидите свою «компас-диаграмму» в динамике."
+    ],
+    weeklyTitle: "Еженедельный чек-ин",
+    weeklySub: "Самая короткая версия · 15–20 минут",
+    weeklyTips: "Пара практических советов по формату: делайте это в одно и то же время каждую неделю (например, воскресный вечер), ограничивайте по времени (20–30 минут) и не превращайте в разбор полётов — если всплывает острая тема, договоритесь обсудить её отдельно, а не тащить весь чек-ин в конфликт.",
+    weeklySectionHeads: {
+      temp: "Как мы вообще (эмоциональная температура)",
+      connection: "Связь и близость",
+      conflict: "Конфликты и трудности",
+      logistics: "Практика и логистика",
+      growth: "Рост и будущее",
+      closing: "Завершение"
+    },
+    weeklyQuestions: {
+      temp: [
+        "Как ты чувствовал(а) себя в отношениях на этой неделе — по шкале от 1 до 10?",
+        "Было ли что-то, из-за чего ты чувствовал(а) себя недооценённым(ой) или непонятым(ой)?",
+        "Был ли момент, когда ты хотел(а) поддержки, но не получил(а) её?"
+      ],
+      connection: [
+        "Достаточно ли у нас было времени вдвоём на этой неделе?",
+        "Есть ли что-то, чем ты хотел(а) поделиться, но не сказал(а)?",
+        "Что из того, что я сделал(а), заставило тебя почувствовать себя любимым(ой)?"
+      ],
+      conflict: [
+        "Было ли что-то, что задело тебя, но ты промолчал(а)?",
+        "Есть ли повторяющаяся ситуация, которая нас обоих раздражает и стоит обсудить отдельно?",
+        "Как мы справились с последним разногласием — что сработало, а что нет?"
+      ],
+      logistics: [
+        "Есть ли что-то из бытовых/финансовых/организационных вопросов, что накопилось и требует решения?",
+        "Комфортно ли распределение обязанностей на этой неделе?",
+        "Нужна ли кому-то из нас разгрузка на следующей неделе?"
+      ],
+      growth: [
+        "Есть ли что-то, чего ты хочешь для себя на следующей неделе, в чём я могу поддержать?",
+        "Двигаемся ли мы к тому, что важно для нас обоих (цели, планы, ценности)?",
+        "Что бы ты хотел(а), чтобы мы попробовали сделать вместе, но пока не делали?"
+      ],
+      closing: [
+        "Что было лучшим моментом недели между нами?",
+        "За что ты мне благодарен(на) на этой неделе?"
+      ]
+    },
+    reviewByThemeHead: "Разбор по темам",
+    reviewByThemeSub: "Те же шесть тем, что и в еженедельном чек-ине, но с горизонтом в квартал — пройдитесь не спеша и ответьте вместе.",
+    reviewByThemeSubAnnual: "Те же шесть тем, что и в еженедельном чек-ине, но с горизонтом в целый год — на это стоит выделить отдельный вечер.",
+    quarterlyReview: {
+      temp: [
+        "Как ты в целом чувствовал(а) себя в отношениях этот квартал — по шкале от 1 до 10?",
+        "Были ли периоды, когда ты чувствовал(а) себя недооценённым(ой) или непонятым(ой)?",
+        "Был ли отрезок, когда тебе не хватало поддержки?"
+      ],
+      connection: [
+        "Достаточно ли у нас было близости и времени вдвоём за эти три месяца?",
+        "Есть ли что-то, чем ты давно хотел(а) поделиться, но так и не сказал(а)?",
+        "Что за квартал заставляло тебя чувствовать себя особенно любимым(ой)?"
+      ],
+      conflict: [
+        "Какая тема за квартал задевала, но мы её обходили?",
+        "Есть ли повторяющийся конфликт, который пора разобрать по-настоящему?",
+        "Как мы в целом справлялись с разногласиями эти три месяца — что работало, что нет?"
+      ],
+      logistics: [
+        "Накопились ли бытовые, финансовые или организационные вопросы, которые пора решить?",
+        "Справедливо ли распределялись обязанности в этом квартале?",
+        "Нужна ли кому-то из нас разгрузка в следующем квартале?"
+      ],
+      growth: [
+        "Чего ты хочешь для себя в следующем квартале — и как я могу поддержать?",
+        "Движемся ли мы к тому, что важно нам обоим (цели, планы, ценности)?",
+        "Что мы давно хотели попробовать вместе, но так и не сделали?"
+      ],
+      closing: [
+        "Какой момент этого квартала между нами был лучшим?",
+        "За что ты благодарен(на) мне и нам за эти три месяца?"
+      ]
+    },
+    annualReview: {
+      temp: [
+        "Как ты в целом оцениваешь этот год в отношениях — по шкале от 1 до 10?",
+        "Были ли в этом году периоды, когда ты чувствовал(а) себя недооценённым(ой) или одиноким(ой) рядом?",
+        "В какие времена года тебе особенно не хватало поддержки?"
+      ],
+      connection: [
+        "Хватало ли нам близости и настоящего времени вдвоём в этом году?",
+        "Что важное ты так и не решился(ась) сказать за этот год?",
+        "Что в этом году сильнее всего давало тебе чувствовать себя любимым(ой)?"
+      ],
+      conflict: [
+        "Какой конфликт этого года был самым тяжёлым — и чему он нас научил?",
+        "Остались ли с этого года обиды, которые мы так и не проговорили?",
+        "Научились ли мы за год справляться с разногласиями лучше?"
+      ],
+      logistics: [
+        "Как в этом году у нас было устроено с бытом, деньгами и организацией жизни?",
+        "Было ли распределение нагрузки справедливым на протяжении года?",
+        "Что в практической стороне жизни хочется перестроить в новом году?"
+      ],
+      growth: [
+        "Чего ты хочешь для себя в новом году — и как я могу быть рядом в этом?",
+        "Двигались ли мы в этом году к тому, что важно нам обоим?",
+        "Что мы мечтали сделать вместе, но за год так и не дошли?"
+      ],
+      closing: [
+        "Какой момент этого года между нами ты хочешь запомнить навсегда?",
+        "За что ты больше всего благодарен(на) мне и нам за этот год?"
+      ]
+    },
+    quarterlyTitle: "Квартальный чек-ин",
+    quarterlySub: "Короткая версия · около 1 часа",
+    annualTitle: "Ежегодный чек-ин",
+    annualSub: "Полная версия · запланируйте удобное время",
+    dateLabel: "Дата ревью:",
+    compassHead: "Компас на сегодня",
+    compassSub: "Форма компаса складывается из того, что вы отметили в меню ниже — «обязательно» и «хотелось бы» тянут область вверх, «не обсуждается» — вниз.",
+    compassQuarterlyNote: "💬 Для обсуждения: пунктирная форма — ваш прошлый квартал. Какая область изменилась сильнее всего — и почему?",
+    legendMore: "Больше значений в этой области",
+    legendLess: "Меньше / не обсуждается",
+    menuHead: "Меню компонентов отношений",
+    menuSub: "Отметьте, что сейчас есть — или должно быть — в вашей связи. Это черновик для разговора: убирайте неактуальное, добавляйте своё в «Разное».",
+    rateMust: "Обязательно",
+    rateLike: "Хотелось бы",
+    rateMaybe: "Возможно",
+    rateOff: "Не обсуждается",
+    addPlaceholder: "Добавить своё…",
+    addBtn: "+",
+    notePlaceholder: "Заметка к этой области (необязательно)…",
+    quarterlyQHead: "Три вопроса на эту четверть",
+    q1: "Что в наших отношениях было особенно хорошо в этот период?",
+    q2: "Что было сложным или болезненным?",
+    q3: "На чём мы хотим сфокусироваться в ближайшие три месяца?",
+    annualPastHead: "Год позади",
+    annualPastSub: "Пройдитесь по нему честно и с благодарностью.",
+    pastQ1: "Самые важные моменты этого года для нас как пары/семьи.",
+    pastQ2: "Через какие трудности мы прошли — и что это нам показало?",
+    pastQ3: "За что я благодарен(на) партнёру и нашим отношениям?",
+    pastQ4: "Что нам ещё нужно отпустить или простить друг другу?",
+    pastWordsHead: "Три слова для прошедшего года наших отношений",
+    annualFutureHead: "Год впереди",
+    annualFutureSub: "Каким мы хотим видеть этот год?",
+    futureQ1: "Этот год будет особенным для нас, потому что…",
+    futureQ2: "В этом году мы скажем «да», когда…",
+    futureQ3: "В этом году мы дадим друг другу больше свободы в…",
+    futureTripletHead: "Три договорённости на будущий год",
+    futureT1: "Мы будем…",
+    futureT2: "Мы будем…",
+    futureT3: "Мы будем…",
+    wordYearHead: "Слово года для наших отношений",
+    saveBtn: "Сохранить запись",
+    printBtn: "Сохранить в PDF",
+    downloadFillBtn: "📥 Скачать и заполнить от руки",
+    downloadFillHintPre: "Сохранится пустой бланк версии «",
+    downloadFillHintPost: "» в PDF — можно распечатать или заполнить в PDF-редакторе.",
+    saved: "Сохранено ✓",
+    historyHead: "История и прогресс",
+    historySub: "Ваши прошлые записи — нажмите, чтобы открыть компас того периода.",
+    emptyHistory: "Пока нет сохранённых записей. Заполните форму выше и нажмите «Сохранить запись».",
+    delConfirm: "Удалить эту запись?",
+    footer: "Личные записи хранятся только на этом устройстве и видны только вам.",
+    achieveHead: "Достижения и радостные моменты",
+    achieveSub: "Даже если год был непростым — почти всегда найдутся события, которые хочется отметить и закрепить в памяти.",
+    achieveCols: ["Событие или момент","Какие эмоции мы испытывали","Почему это важно для нас","Что хотим повторить или развивать"],
+    addAchieveRow: "+ Добавить момент",
+    gratitudeHead: "Благодарность",
+    gratitudeSub: "Нам может казаться, что партнёр «и так всё понимает» — но услышать искреннее спасибо за конкретные вещи почти всегда ценно. Попробуйте прочитать это друг другу вслух.",
+    gratA: "Я благодарен(на) партнёру за то, что…",
+    gratB: "Что в этом году было для меня особенно трогательным…",
+    growthHead: "Конфликты как точки роста",
+    growthSub: "Возьмите 1–3 повторяющихся спора или сложности и разберите их вместе, без обвинений — как задачу, у которой есть решение.",
+    growthCols: ["Сложность","Возможные причины","Что помогло или могло бы помочь","Следующий шаг"],
+    addGrowthRow: "+ Добавить ситуацию",
+    removeRow: "Удалить",
+    boundariesHead: "Личные границы",
+    boundariesSub: "Это забота о себе, а не эгоизм: где нам обоим важно обозначить границы, даже если это не совпадает с ожиданиями партнёра?",
+    boundQ1: "В какой ситуации недавно были задеты чьи-то границы?",
+    boundQ2: "Что нужно мне, чтобы чувствовать себя в порядке?",
+    boundQ3: "Что нужно партнёру?",
+    boundQ4: "О чём мы договорились?",
+    lifeGoalsHead: "Цели по сферам жизни",
+    lifeGoalsSub: "Отношения — только одна из сфер жизни. Наметьте цель в каждой ключевой области и то, как партнёр может поддержать.",
+    lifeGoalPlaceholder: "Цель…",
+    lifeSupportPlaceholder: "Как партнёр может поддержать…",
+    roadmapHead: "Дорожная карта года",
+    roadmapSub: "Наметьте по кварталам, что важного должно произойти — так план не будет наваливаться в последний момент.",
+    roadQ1: "Январь–март: ключевые события и цели",
+    roadQ2: "Апрель–июнь: ключевые события и цели",
+    roadQ3: "Июль–сентябрь: ключевые события и цели",
+    roadQ4: "Октябрь–декабрь: ключевые события и цели",
+    bucketHead: "Совместные хотелки",
+    bucketSub: "Мозговой штурм без критики: за 5–10 минут выпишите всё, что хочется попробовать вместе — от простого до безумного.",
+    bucketPlaceholder: "хочу… хочу… хочу…",
+    catNames: {
+      commitment: "Обязательства",
+      physical: "Физическая близость",
+      emotional: "Эмоциональная близость",
+      communication: "Общение",
+      social: "Социальная интеграция",
+      quality: "Качественное время",
+      financial: "Финансы",
+      autonomy: "Автономия",
+      misc: "Разное"
+    },
+    lifeAreas: {
+      relationship: "Отношения и семья",
+      health: "Здоровье",
+      finance: "Финансы",
+      career: "Карьера",
+      growth: "Личностный рост",
+      friendship: "Дружба",
+      hobby: "Хобби и увлечения"
+    },
+    catDesc: {
+      commitment: "Брак, дети, жильё, приоритеты, планы на будущее.",
+      physical: "Телесная и сексуальная близость — в той форме, которая работает для вас.",
+      emotional: "Уязвимость, поддержка, то, как вы узнаёте друг друга.",
+      communication: "Как часто и как именно вы разговариваете, как обходитесь с конфликтом.",
+      social: "Знакомство с окружением друг друга и то, как вы предстаёте парой на публике.",
+      quality: "Сколько времени и какого качества вы проводите вместе.",
+      financial: "Деньги: от общих трат на отдых до полного объединения бюджета.",
+      autonomy: "Личное пространство, другие связи, баланс власти в паре.",
+      misc: "Всё, что не поместилось в другие категории — впишите сами."
+    },
+    discussLabel: "💬 Разобрать тему глубже",
+    discussLabelAnnual: "💬 Разобрать тему за год",
+    discussHint: "вопросов",
+    catDiscuss: {
+      commitment: [
+        "Поменялось ли что-то в наших ожиданиях друг от друга за последние три месяца?",
+        "Есть ли договорённости, которые пора обновить или проговорить заново?",
+        "Чувствуем ли мы оба уверенность в завтрашнем дне наших отношений?",
+        "Есть ли тема про общее будущее, которую мы откладываем?",
+        "Какие обещания друг другу мы сдержали, а какие — нет?",
+        "Что для каждого из нас сейчас значит «быть вместе»?"
+      ],
+      physical: [
+        "Как в целом ощущалась близость в последние три месяца?",
+        "Чего хотелось бы больше, а чего — меньше?",
+        "Легко ли нам говорить друг с другом о желаниях и границах?",
+        "Есть ли что-то новое, что хотелось бы попробовать вместе?",
+        "Что в последнее время сближало нас телесно?",
+        "Есть ли что-то, что мешает расслабиться и быть открытыми?"
+      ],
+      emotional: [
+        "Чувствовали ли мы поддержку друг друга в трудные моменты этого квартала?",
+        "Было ли что-то, чем хотелось поделиться, но не получилось?",
+        "Когда за последнее время я чувствовал(а) себя особенно близко к партнёру?",
+        "Что помогает каждому из нас раскрываться?",
+        "Умеем ли мы замечать, когда другому тяжело?",
+        "Чего мне не хватает в эмоциональной близости прямо сейчас?"
+      ],
+      communication: [
+        "Как нам в целом удавалось разговаривать о сложном?",
+        "Были ли моменты, когда один из нас чувствовал себя неуслышанным?",
+        "Есть ли тема, которую мы оба обходим стороной?",
+        "Что в том, как общается партнёр, я ценю больше всего?",
+        "Как мы обычно миримся после ссоры — и работает ли это?",
+        "Что я могу делать иначе, чтобы партнёру было легче со мной говорить?"
+      ],
+      social: [
+        "Как прошло время с друзьями и близкими друг друга в этом квартале?",
+        "Комфортно ли нам в том, как мы появляемся как пара на людях?",
+        "Есть ли вокруг люди, которые влияют на нас — к лучшему или к худшему?",
+        "Хотим ли мы что-то изменить в балансе «наше время» и «время с другими»?",
+        "Чувствую ли я себя частью мира партнёра, а он(а) — моего?",
+        "Есть ли отношения с близкими, которые стоит выстроить иначе?"
+      ],
+      quality: [
+        "Было ли в этом квартале достаточно качественного времени вдвоём?",
+        "Какой момент вместе запомнился больше всего?",
+        "Что мешает нам проводить больше времени вместе?",
+        "Какое совместное занятие хотелось бы вернуть или завести?",
+        "Когда мы вместе — мы правда вместе, или каждый в телефоне?",
+        "Какой была бы идеальная неделя для нас двоих?"
+      ],
+      financial: [
+        "Изменилось ли что-то в наших финансовых договорённостях за квартал?",
+        "Остались ли денежные вопросы, которые стоит обсудить?",
+        "Чувствуем ли мы оба, что распределение справедливо?",
+        "Есть ли общая финансовая цель на ближайшее время?",
+        "Легко ли нам вообще говорить о деньгах?",
+        "Есть ли финансовое напряжение, о котором мы молчим?"
+      ],
+      autonomy: [
+        "Чувствовали ли мы баланс между «вместе» и «порознь» в этом квартале?",
+        "Хватало ли личного пространства каждому?",
+        "Поддерживаем ли мы увлечения и связи друг друга вне пары?",
+        "Было ли ощущение, что чьи-то границы нарушались?",
+        "Есть ли что-то, что я перестал(а) делать ради отношений и скучаю по этому?",
+        "Доверяем ли мы друг другу то время, что проводим порознь?"
+      ],
+      misc: [
+        "Было ли за эти три месяца что-то важное, что не попало в другие категории?",
+        "Есть ли что-то, за что хочется сказать спасибо прямо сейчас?",
+        "О чём мы давно хотели поговорить, но всё не доходило?",
+        "Что бы каждый из нас изменил в следующем квартале, будь такая возможность?",
+        "Есть ли что-то, что я давно хотел(а) спросить у партнёра?"
+      ]
+    },
+    catDiscussAnnual: {
+      commitment: [
+        "Как за этот год изменились наши обязательства друг перед другом?",
+        "Какие совместные решения этого года были самыми важными?",
+        "Стали ли мы чувствовать себя надёжнее друг с другом за год?",
+        "Какие договорённости прошлого года сработали, а какие — нет?",
+        "Куда мы хотим прийти вместе за следующий год?"
+      ],
+      physical: [
+        "Как менялась наша близость на протяжении года?",
+        "Были ли периоды отдаления — с чем они были связаны?",
+        "Что в этом году добавляло нам телесной близости?",
+        "Насколько открыто мы говорили о сексе и желаниях за год?",
+        "Чего хочется в этой сфере в новом году?"
+      ],
+      emotional: [
+        "Стали ли мы ближе эмоционально за этот год?",
+        "В какие моменты года я особенно чувствовал(а) поддержку?",
+        "Были ли обиды, которые так и не проговорили?",
+        "Что нового мы узнали друг о друге за год?",
+        "Как мы хотим заботиться о чувствах друг друга дальше?"
+      ],
+      communication: [
+        "Как изменилось наше общение за год?",
+        "Научились ли мы лучше справляться с конфликтами?",
+        "Какой разговор этого года был самым важным?",
+        "Есть ли темы, которые мы так и не решились обсудить?",
+        "Что хотим поменять в том, как разговариваем?"
+      ],
+      social: [
+        "Как за год вписались друг в друга наши круги общения?",
+        "Были ли внешние люди или ситуации, что влияли на нас?",
+        "Комфортно ли нам как паре среди других за этот год?",
+        "С кем из близких стало теплее, а с кем — сложнее?",
+        "Каким мы хотим видеть наше место среди людей в новом году?"
+      ],
+      quality: [
+        "Хватало ли нам качественного времени вдвоём в этом году?",
+        "Какие совместные моменты года хочется сохранить в памяти?",
+        "Что крало наше время друг у друга?",
+        "Какие традиции вдвоём у нас появились или исчезли?",
+        "Как хотим проводить время вместе в следующем году?"
+      ],
+      financial: [
+        "Как мы справлялись с деньгами как пара в этом году?",
+        "Были ли финансовые решения, которыми мы гордимся или о которых жалеем?",
+        "Стало ли нам легче говорить о деньгах за год?",
+        "Справедливо ли, на наш взгляд, распределялись расходы?",
+        "Какие финансовые цели ставим на новый год?"
+      ],
+      autonomy: [
+        "Удавалось ли сохранять себя и своё пространство в отношениях весь год?",
+        "Поддерживали ли мы рост и увлечения друг друга?",
+        "Были ли моменты, когда я растворялся(ась) в отношениях или, наоборот, отдалялся(ась)?",
+        "Уважали ли мы границы друг друга в этом году?",
+        "Сколько «времени для себя» хочется каждому в новом году?"
+      ],
+      misc: [
+        "Что из этого года не попало ни в одну категорию, но важно?",
+        "За что я больше всего благодарен(на) нам как паре в этом году?",
+        "Что было самым большим уроком года для наших отношений?",
+        "Если бы у года наших отношений было название — какое?"
+      ]
+    },
+    catComponents: {
+      commitment: ["Брак","Рождение детей вместе","Совместное воспитание детей от других партнёрств","Общие питомцы","Наличие ключа друг от друга","Совместное проживание","Совместное владение жильём","Приоритет над другими партнёрами","Определение статуса отношений","Планирование совместного будущего","Ожидание долгосрочных отношений","Готовность преодолевать трудности вместе","Забота о поддержании отношений","Доверенность/завещание друг на друга","Поддержка при проблемах со здоровьем"],
+      physical: ["Физическая нежность","Проявления нежности на публике","Совместимость по либидо","Сексуальная химия","Оргазмы","Поцелуи","Оральный секс","Мануальный секс (пальцами)","Взаимная мастурбация","Проникающий секс","Использование секс-игрушек","Презервативы/барьерные средства","Регулярные анализы на ИППП","Кинк/BDSM-практики","Групповой секс"],
+      emotional: ["Выражение радости","Поддержка в трудные времена","Делиться уязвимыми чувствами","Говорить «я тебя люблю»","Делиться историями из прошлого","Делиться надеждами на будущее","Знать личные предпочтения (еда и т.п.)","Ласковые прозвища","Делиться сложностями с ментальным здоровьем","Поддержка в работе над ментальным здоровьем"],
+      communication: ["Ежедневные/частые созвоны-проверки","Переписка","Звонки/видеозвонки","Разговоры о работе и увлечениях","Разговоры о семье, партнёрах, отношениях","Разговоры о политике и новостях","Умение выражать несогласие и обиду","Умение поднимать и разрешать конфликт","Радикальная честность"],
+      social: ["Знакомство с метамурами (партнёрами партнёра)","Знакомство с детьми","Знакомство с родителями/родственниками","Знакомство с друзьями","Совместное время с друзьями/семьёй как пара","Хорошие отношения с метамурами","Быть «+1» на мероприятиях","Быть парой на публике","Быть друг у друга в соцсетях","Быть парой в соцсетях","Быть парой в профессиональной среде","Совместные поездки с семьёй/метамурами"],
+      quality: ["Регулярно запланированное время вдвоём","Свидания","Ночёвки вместе","Общие увлечения","Совместные путешествия как пара","Совместное планирование календаря"],
+      financial: ["Общий банковский счёт","Совместный фонд на отдых/мероприятия","Финансовая поддержка","Крупные подарки","Полное объединение финансов"],
+      autonomy: ["Баланс времени вместе и порознь","Поддержка личных интересов","Сохранение своих дружеских связей","Сохранение других романтических отношений","Равное распределение власти в отношениях","Время наедине с собой"],
+      misc: []
+    }
+  },
+  en: {
+    eyebrow: "A compass for two (or more)",
+    title: "Relationship Compass",
+    lede: "A place to look honestly at what we've built — and decide where to grow next.",
+    introP1: "A quarterly and yearly practice for couples and families (in any configuration), inspired by retrospectives like YearCompass, Gottman's research on lasting relationships, and the \"relationship components menu\" popular in polyamory and relationship-anarchy circles.",
+    whySummary: "Why this exists and how to use it",
+    whyP1: "Most couples don't check in on their relationship systematically — only once tension has already built up. Gottman's research points to five areas that resilient couples revisit regularly: friendship and intimacy, safety, how they handle conflict, shared meaning, and each person's individual concerns.",
+    whyP2: "The \"Menu\" section below is a discussion aid, not a test with right answers. It follows a \"non-escalator\" logic: instead of accepting a relationship's default package (marriage → kids → mortgage), partners mark what's a must-have, nice-to-have, uncertain, or off the table for them — and cross out or add items to fit their own couple or family.",
+    whyList: [
+      "Every quarter — a short check-in (10–15 minutes): what went well, what was hard, what to focus on next.",
+      "Once a year — a full review in the spirit of YearCompass: the whole past year of the couple/family, and the year ahead with intentions and agreements.",
+      "Every entry is saved with a date, so over time you'll see your compass shape change."
+    ],
+    weeklyTitle: "Weekly check-in",
+    weeklySub: "The shortest version · 15–20 minutes",
+    weeklyTips: "A few practical tips: do this at the same time every week (e.g. Sunday evening), keep it time-boxed (20–30 minutes), and don't let it turn into a post-mortem — if something sharp comes up, agree to discuss it separately rather than dragging the whole check-in into conflict.",
+    weeklySectionHeads: {
+      temp: "How are we, overall (emotional temperature)",
+      connection: "Connection and closeness",
+      conflict: "Conflicts and difficulties",
+      logistics: "Practical matters and logistics",
+      growth: "Growth and the future",
+      closing: "Closing"
+    },
+    weeklyQuestions: {
+      temp: [
+        "How did you feel in our relationship this week — on a scale from 1 to 10?",
+        "Was there anything that made you feel undervalued or misunderstood?",
+        "Was there a moment you wanted support but didn't get it?"
+      ],
+      connection: [
+        "Did we have enough time together, just the two of us, this week?",
+        "Is there something you wanted to share but didn't say?",
+        "What did I do that made you feel loved?"
+      ],
+      conflict: [
+        "Was there something that hurt you, but you stayed quiet about it?",
+        "Is there a recurring situation that bothers us both and deserves its own conversation?",
+        "How did we handle our last disagreement — what worked, what didn't?"
+      ],
+      logistics: [
+        "Has anything practical, financial, or organizational piled up and needs solving?",
+        "Did the split of responsibilities feel fair this week?",
+        "Does either of us need some relief next week?"
+      ],
+      growth: [
+        "Is there something you want for yourself next week that I can support?",
+        "Are we moving toward what matters to both of us (goals, plans, values)?",
+        "Is there something you'd like us to try together that we haven't yet?"
+      ],
+      closing: [
+        "What was the best moment of the week between us?",
+        "What are you grateful to me for this week?"
+      ]
+    },
+    reviewByThemeHead: "Theme-by-theme review",
+    reviewByThemeSub: "The same six themes as the weekly check-in, but over a quarter's horizon — take your time and answer together.",
+    reviewByThemeSubAnnual: "The same six themes as the weekly check-in, but over a whole year — worth setting aside an evening for.",
+    quarterlyReview: {
+      temp: [
+        "How did you generally feel in the relationship this quarter — on a scale of 1 to 10?",
+        "Were there stretches where you felt undervalued or misunderstood?",
+        "Was there a period when you lacked support?"
+      ],
+      connection: [
+        "Did we have enough closeness and time together over these three months?",
+        "Is there something you've long wanted to share but never said?",
+        "What made you feel especially loved this quarter?"
+      ],
+      conflict: [
+        "What topic kept touching a nerve this quarter but we avoided it?",
+        "Is there a recurring conflict it's time to really work through?",
+        "How did we generally handle disagreements these three months — what worked, what didn't?"
+      ],
+      logistics: [
+        "Have household, financial, or organizational matters piled up that need deciding?",
+        "Were responsibilities shared fairly this quarter?",
+        "Does either of us need some relief next quarter?"
+      ],
+      growth: [
+        "What do you want for yourself next quarter — and how can I support it?",
+        "Are we moving toward what matters to both of us (goals, plans, values)?",
+        "What have we long wanted to try together but never did?"
+      ],
+      closing: [
+        "What was the best moment between us this quarter?",
+        "What are you grateful to me, and to us, for these three months?"
+      ]
+    },
+    annualReview: {
+      temp: [
+        "How would you rate this year in the relationship overall — on a scale of 1 to 10?",
+        "Were there periods this year you felt undervalued or lonely even together?",
+        "Which times of year did you most lack support?"
+      ],
+      connection: [
+        "Did we have enough closeness and real time together this year?",
+        "What important thing did you never bring yourself to say this year?",
+        "What made you feel most loved this year?"
+      ],
+      conflict: [
+        "What was the hardest conflict of the year — and what did it teach us?",
+        "Are there hurts left over from this year we never talked through?",
+        "Did we get better at handling disagreements over the year?"
+      ],
+      logistics: [
+        "How did household, money, and the logistics of life work for us this year?",
+        "Was the load shared fairly throughout the year?",
+        "What about the practical side of life do we want to rebuild next year?"
+      ],
+      growth: [
+        "What do you want for yourself next year — and how can I be there for it?",
+        "Did we move toward what matters to both of us this year?",
+        "What did we dream of doing together but never got to this year?"
+      ],
+      closing: [
+        "Which moment between us this year do you want to remember forever?",
+        "What are you most grateful to me, and to us, for this year?"
+      ]
+    },
+    quarterlyTitle: "Quarterly check-in",
+    quarterlySub: "Short version · about 1 hour",
+    annualTitle: "Annual check-in",
+    annualSub: "Full version · set aside some time",
+    dateLabel: "Review date:",
+    compassHead: "Today's compass",
+    compassSub: "The compass shape comes from what you mark in the menu below — \"must-have\" and \"like to have\" pull an area up, \"off limits\" pulls it down.",
+    compassQuarterlyNote: "💬 To discuss: the dashed shape is your last quarter. Which area shifted the most — and why?",
+    legendMore: "More weight in this area",
+    legendLess: "Less / off limits",
+    menuHead: "Relationship components menu",
+    menuSub: "Mark what's currently there — or should be — in your connection. This is a draft for conversation: remove what doesn't apply, add your own under \"Miscellaneous\".",
+    rateMust: "Must have",
+    rateLike: "Like to have",
+    rateMaybe: "Maybe",
+    rateOff: "Off limits",
+    addPlaceholder: "Add your own…",
+    addBtn: "+",
+    notePlaceholder: "A note on this area (optional)…",
+    quarterlyQHead: "Three questions for this quarter",
+    q1: "What was especially good in our relationship this period?",
+    q2: "What was difficult or painful?",
+    q3: "What do we want to focus on in the next three months?",
+    annualPastHead: "The year behind us",
+    annualPastSub: "Walk through it honestly and with gratitude.",
+    pastQ1: "The most important moments this year for us as a couple/family.",
+    pastQ2: "What difficulties did we go through — and what did they show us?",
+    pastQ3: "What am I grateful for, about my partner and our relationship?",
+    pastQ4: "What do we still need to let go of or forgive each other for?",
+    pastWordsHead: "Three words for the past year of our relationship",
+    annualFutureHead: "The year ahead",
+    annualFutureSub: "What do we want this year to look like?",
+    futureQ1: "This year will be special for us because…",
+    futureQ2: "This year we will say yes when…",
+    futureQ3: "This year we will give each other more freedom in…",
+    futureTripletHead: "Three agreements for the year ahead",
+    futureT1: "We will…",
+    futureT2: "We will…",
+    futureT3: "We will…",
+    wordYearHead: "Word of the year for our relationship",
+    saveBtn: "Save entry",
+    printBtn: "Save as PDF",
+    downloadFillBtn: "📥 Download to fill by hand",
+    downloadFillHintPre: "Saves a blank template of the \"",
+    downloadFillHintPost: "\" version as a PDF — print it or fill it in a PDF editor.",
+    saved: "Saved ✓",
+    historyHead: "History and progress",
+    historySub: "Your past entries — click to open that period's compass.",
+    emptyHistory: "No saved entries yet. Fill in the form above and click \"Save entry\".",
+    delConfirm: "Delete this entry?",
+    footer: "Personal entries are stored only on this device and are visible only to you.",
+    achieveHead: "Achievements and joyful moments",
+    achieveSub: "Even if the year was hard — there are almost always moments worth marking and remembering.",
+    achieveCols: ["Event or moment","What emotions we felt","Why it matters to us","What we want to repeat or grow"],
+    addAchieveRow: "+ Add a moment",
+    gratitudeHead: "Gratitude",
+    gratitudeSub: "It's easy to assume a partner \"already knows\" — but hearing a genuine thank-you for something specific is almost always meaningful. Try reading these aloud to each other.",
+    gratA: "I'm grateful to my partner for…",
+    gratB: "What felt especially touching this year…",
+    growthHead: "Conflicts as growth points",
+    growthSub: "Pick 1–3 recurring arguments or difficulties and work through them together, without blame — as a problem with a solution.",
+    growthCols: ["Difficulty","Possible causes","What helped or could help","Next step"],
+    addGrowthRow: "+ Add a situation",
+    removeRow: "Remove",
+    boundariesHead: "Personal boundaries",
+    boundariesSub: "This is self-care, not selfishness: where does each of us need to name a boundary, even if it doesn't match the other's expectations?",
+    boundQ1: "What recent situation touched on someone's boundaries?",
+    boundQ2: "What do I need to feel okay?",
+    boundQ3: "What does my partner need?",
+    boundQ4: "What did we agree on?",
+    lifeGoalsHead: "Goals across life areas",
+    lifeGoalsSub: "The relationship is only one area of life. Set one goal in each key area, and how your partner can support it.",
+    lifeGoalPlaceholder: "Goal…",
+    lifeSupportPlaceholder: "How my partner can support me…",
+    roadmapHead: "Roadmap for the year",
+    roadmapSub: "Sketch out what needs to happen each quarter, so the plan doesn't pile up at the last minute.",
+    roadQ1: "January–March: key events and goals",
+    roadQ2: "April–June: key events and goals",
+    roadQ3: "July–September: key events and goals",
+    roadQ4: "October–December: key events and goals",
+    bucketHead: "Things we want to try together",
+    bucketSub: "A no-criticism brainstorm: in 5–10 minutes, write down everything you'd like to try together — from simple to wild.",
+    bucketPlaceholder: "I want to… I want to… I want to…",
+    catNames: {
+      commitment: "Commitment",
+      physical: "Physical intimacy",
+      emotional: "Emotional intimacy",
+      communication: "Communication",
+      social: "Social integration",
+      quality: "Quality time",
+      financial: "Financial management",
+      autonomy: "Autonomy",
+      misc: "Miscellaneous"
+    },
+    lifeAreas: {
+      relationship: "Relationship & family",
+      health: "Health",
+      finance: "Finances",
+      career: "Career",
+      growth: "Personal growth",
+      friendship: "Friendship",
+      hobby: "Hobbies & interests"
+    },
+    catDesc: {
+      commitment: "Marriage, kids, housing, priority, plans for the future.",
+      physical: "Physical and sexual intimacy — in whatever form works for you.",
+      emotional: "Vulnerability, support, how you get to know each other.",
+      communication: "How often and how you talk, how you handle conflict.",
+      social: "Meeting each other's world, and how you present as a couple in public.",
+      quality: "How much time — and what quality of time — you spend together.",
+      financial: "Money: from a shared vacation fund to full financial integration.",
+      autonomy: "Personal space, other connections, balance of power in the couple.",
+      misc: "Anything that didn't fit the other categories — add your own."
+    },
+    discussLabel: "💬 Unpack this topic",
+    discussLabelAnnual: "💬 Reflect on this topic over the year",
+    discussHint: "questions",
+    catDiscuss: {
+      commitment: [
+        "Did anything change in what we expect from each other these past three months?",
+        "Are there agreements that need updating or talking through again?",
+        "Do we both feel secure about where our relationship is heading?",
+        "Is there a topic about our shared future we keep putting off?",
+        "Which promises to each other did we keep, and which didn't we?",
+        "What does 'being together' mean to each of us right now?"
+      ],
+      physical: [
+        "How has intimacy generally felt these past three months?",
+        "What would we like more of, and less of?",
+        "Is it easy for us to talk about desires and boundaries?",
+        "Is there something new we'd like to try together?",
+        "What has brought us physically closer lately?",
+        "Is there anything stopping us from relaxing and being open?"
+      ],
+      emotional: [
+        "Did we feel supported by each other during hard moments this quarter?",
+        "Was there something we wanted to share but didn't?",
+        "When did I feel especially close to my partner recently?",
+        "What helps each of us open up?",
+        "Are we good at noticing when the other is struggling?",
+        "What am I missing in our emotional closeness right now?"
+      ],
+      communication: [
+        "How well did we manage to talk about hard things?",
+        "Were there moments either of us felt unheard?",
+        "Is there a topic we both tend to avoid?",
+        "What do I most appreciate about how my partner communicates?",
+        "How do we usually make up after a fight — and does it work?",
+        "What could I do differently to make it easier for my partner to talk to me?"
+      ],
+      social: [
+        "How did time with each other's friends and family go this quarter?",
+        "Are we comfortable with how we show up as a couple in public?",
+        "Are there people around us who affect us — for better or worse?",
+        "Do we want to change the balance of 'our time' vs 'time with others'?",
+        "Do I feel part of my partner's world, and they of mine?",
+        "Are there relationships with loved ones worth handling differently?"
+      ],
+      quality: [
+        "Did we get enough quality time together this quarter?",
+        "Which moment together stood out the most?",
+        "What gets in the way of spending more time together?",
+        "What shared activity would we like to bring back or start?",
+        "When we're together, are we really together — or each on our phones?",
+        "What would an ideal week for the two of us look like?"
+      ],
+      financial: [
+        "Did anything change in our financial arrangements this quarter?",
+        "Are there money questions still worth discussing?",
+        "Do we both feel the split is fair?",
+        "Is there a shared financial goal for the near future?",
+        "Is it even easy for us to talk about money?",
+        "Is there financial tension we're staying quiet about?"
+      ],
+      autonomy: [
+        "Did we feel a good balance between togetherness and apart-time this quarter?",
+        "Did each of us have enough personal space?",
+        "Do we support each other's interests and connections outside the couple?",
+        "Did it ever feel like someone's boundaries were crossed?",
+        "Is there something I stopped doing for the relationship that I miss?",
+        "Do we trust each other with the time we spend apart?"
+      ],
+      misc: [
+        "Was there anything important this quarter that didn't fit the other categories?",
+        "Is there something we'd like to say thank you for right now?",
+        "What have we been meaning to talk about but never got to?",
+        "What would each of us change about the next quarter if we could?",
+        "Is there something I've long wanted to ask my partner?"
+      ]
+    },
+    catDiscussAnnual: {
+      commitment: [
+        "How did our commitments to each other change over this year?",
+        "Which shared decisions this year were the most important?",
+        "Did we come to feel more secure with each other over the year?",
+        "Which of last year's agreements worked, and which didn't?",
+        "Where do we want to arrive together over the next year?"
+      ],
+      physical: [
+        "How did our intimacy shift over the course of the year?",
+        "Were there periods of distance — what were they tied to?",
+        "What added to our physical closeness this year?",
+        "How openly did we talk about sex and desires over the year?",
+        "What do we want in this area in the new year?"
+      ],
+      emotional: [
+        "Did we grow emotionally closer over this year?",
+        "At which moments of the year did I feel especially supported?",
+        "Were there hurts we never talked through?",
+        "What new things did we learn about each other this year?",
+        "How do we want to care for each other's feelings going forward?"
+      ],
+      communication: [
+        "How did our communication change over the year?",
+        "Did we get better at handling conflict?",
+        "What was the most important conversation of this year?",
+        "Are there topics we never dared to discuss?",
+        "What do we want to change in how we talk?"
+      ],
+      social: [
+        "How did our social circles fit together over the year?",
+        "Were there outside people or situations that affected us?",
+        "Were we comfortable as a couple among others this year?",
+        "With which loved ones did things warm up, and with which got harder?",
+        "How do we want to see our place among people in the new year?"
+      ],
+      quality: [
+        "Did we have enough quality time together this year?",
+        "Which shared moments of the year do we want to keep in memory?",
+        "What stole our time from each other?",
+        "Which rituals for the two of us appeared or disappeared?",
+        "How do we want to spend time together next year?"
+      ],
+      financial: [
+        "How did we handle money as a couple this year?",
+        "Were there financial decisions we're proud of or regret?",
+        "Did talking about money get easier over the year?",
+        "In our view, were expenses shared fairly?",
+        "What financial goals are we setting for the new year?"
+      ],
+      autonomy: [
+        "Did we manage to keep ourselves and our own space all year?",
+        "Did we support each other's growth and interests?",
+        "Were there moments I dissolved into the relationship, or pulled away?",
+        "Did we respect each other's boundaries this year?",
+        "How much 'time for myself' does each of us want in the new year?"
+      ],
+      misc: [
+        "What from this year fit no category but still matters?",
+        "What am I most grateful for about us as a couple this year?",
+        "What was the biggest lesson of the year for our relationship?",
+        "If the year of our relationship had a title — what would it be?"
+      ]
+    },
+    catComponents: {
+      commitment: ["Marriage","Pregnancy/children together","Coparenting children from other partnerships","Sharing pet(s)","Having a key","Cohabitation","Home ownership","Prioritization over other partners","Relationship labels","Planning for future","Expectation of long term involvement","Commitment to working through challenges","Commitment to relationship maintenance","Power of attorney/wills","Support through health challenges"],
+      physical: ["Physical affection","PDA (public displays of affection)","Compatible sex drives","Sexual chemistry","Orgasms","Kissing","Oral sex","Manual sex (fingering)","Mutual masturbation","Penetration/PIV","Using sex toys","Condom/barrier use","Regular STI testing","Kinky stuff","Threesomes or group sex"],
+      emotional: ["Expressing happiness and joy","Offering support in hard times","Sharing vulnerable feelings","Saying \"I love you\"","Sharing stories about past","Sharing hopes for future","Knowing personal likes/dislikes","Using pet names","Sharing about mental health challenges","Supporting mental health work"],
+      communication: ["Daily or frequent check ins","Texting","Phone/video calls","Discussing work and hobbies","Discussing family, partners, relationships","Discussing politics and current events","Ability to express disagreements or hurt feelings","Ability to address and resolve conflict","Radical honesty"],
+      social: ["Meeting metamors (partners' other partners)","Meeting children","Meeting parents/siblings/extended family","Meeting friends","Spending time as a couple with friends/family","Positive relationships with metamors","Serving as +1 for social events","Presenting as a couple in public settings","Following on social media","Presenting as a couple on social media","Presenting as a couple in professional settings","Joint vacations with family/metamors"],
+      quality: ["Regularly scheduled time together","Date nights","Spending the night","Shared hobbies or activities","Vacations together as couple","Calendar mgt/scheduling initiation"],
+      financial: ["Shared bank account(s)","Mutual contributions to vacation/activity fund","Financial support","Large gifts","Complete financial integration"],
+      autonomy: ["Balance of time together and apart","Support to pursue independent interests","Maintaining independent friendships","Maintaining independent romantic relationships","Equal distribution of relationship power","Alone time"],
+      misc: []
+    }
+  }
+};
+
+/* ---------------------------------------------------------------
+   Rating states: 0=unset 1=must 2=like 3=maybe 4=off
+--------------------------------------------------------------- */
+const STATE_CLASS = ["unset","must","like","maybe","off"];
+const STATE_SYMBOL = ["", "\u25CF", "\u25CB", "?", "\u2298"];
+const STATE_SCORE   = [null, 5, 3.5, 2, 0];
+
+/* ---------------------------------------------------------------
+   State
+--------------------------------------------------------------- */
+let state = {
+  lang: "ru",
+  mode: "weekly",
+  date: new Date().toISOString().slice(0,10),
+  checked: {},          // catId -> { itemKey: stateIndex(0-4) }
+  customComponents: {}, // catId -> [labels]
+  notes: {},            // catId -> text
+  answers: {},          // question key -> text
+  growthRows: [{issue:"",causes:"",help:"",next:""}], // conflict/growth table rows
+  achievementRows: [{moment:"",emotions:"",why:"",keep:""}], // achievements table rows
+  lifeGoals: {},        // areaId -> {goal, support}
+  bucket: "",           // free bucket-list text
+  history: []
+};
+CAT_ORDER.forEach(c=>{ state.checked[c]={}; state.customComponents[c]=[]; state.notes[c]=""; });
+LIFE_AREAS.forEach(a=>{ state.lifeGoals[a] = {goal:"", support:""}; });
+
+function tr(){ return T[state.lang]; }
+
+/* ---------------------------------------------------------------
+   Storage helpers
+--------------------------------------------------------------- */
+async function loadHistory(){
+  try{
+    const list = await storage.list("entry:");
+    if(!list || !list.keys) { state.history=[]; return; }
+    const entries = [];
+    for(const k of list.keys){
+      try{
+        const r = await storage.get(k);
+        if(r && r.value) entries.push(JSON.parse(r.value));
+      }catch(e){}
+    }
+    entries.sort((a,b)=> b.date.localeCompare(a.date) || b.savedAt - a.savedAt);
+    state.history = entries;
+  }catch(e){ state.history = []; }
+}
+
+async function saveEntry(){
+  const id = "entry:" + state.date + "-" + state.mode + "-" + Date.now();
+  const payload = {
+    id, mode: state.mode, date: state.date, savedAt: Date.now(),
+    checked: JSON.parse(JSON.stringify(state.checked)),
+    customComponents: JSON.parse(JSON.stringify(state.customComponents)),
+    notes: JSON.parse(JSON.stringify(state.notes)),
+    answers: JSON.parse(JSON.stringify(state.answers)),
+    growthRows: JSON.parse(JSON.stringify(state.growthRows)),
+    achievementRows: JSON.parse(JSON.stringify(state.achievementRows)),
+    lifeGoals: JSON.parse(JSON.stringify(state.lifeGoals)),
+    bucket: state.bucket
+  };
+  try{
+    await storage.set(id, JSON.stringify(payload));
+    await loadHistory();
+    render();
+    const msg = document.getElementById("saveMsg");
+    if(msg){ msg.classList.add("show"); setTimeout(()=>msg.classList.remove("show"), 2200); }
+  }catch(e){ console.error("storage error", e); }
+}
+
+async function deleteEntry(id){
+  try{
+    await storage.delete(id);
+    await loadHistory();
+    render();
+  }catch(e){ console.error(e); }
+}
+
+function loadEntryIntoForm(entry){
+  state.mode = entry.mode;
+  state.date = entry.date;
+  state.checked = JSON.parse(JSON.stringify(entry.checked));
+  state.customComponents = JSON.parse(JSON.stringify(entry.customComponents));
+  state.notes = JSON.parse(JSON.stringify(entry.notes));
+  state.answers = JSON.parse(JSON.stringify(entry.answers));
+  state.growthRows = entry.growthRows ? JSON.parse(JSON.stringify(entry.growthRows)) : [{issue:"",causes:"",help:"",next:""}];
+  state.achievementRows = entry.achievementRows ? JSON.parse(JSON.stringify(entry.achievementRows)) : [{moment:"",emotions:"",why:"",keep:""}];
+  state.lifeGoals = entry.lifeGoals ? JSON.parse(JSON.stringify(entry.lifeGoals)) : {};
+  state.bucket = entry.bucket || "";
+  CAT_ORDER.forEach(c=>{
+    if(!state.checked[c]) state.checked[c]={};
+    if(!state.customComponents[c]) state.customComponents[c]=[];
+    if(state.notes[c]===undefined) state.notes[c]="";
+  });
+  LIFE_AREAS.forEach(a=>{
+    if(!state.lifeGoals[a]) state.lifeGoals[a] = {goal:"", support:""};
+  });
+  if(state.growthRows.length===0) state.growthRows=[{issue:"",causes:"",help:"",next:""}];
+  if(state.achievementRows.length===0) state.achievementRows=[{moment:"",emotions:"",why:"",keep:""}];
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ---------------------------------------------------------------
+   Score computation
+--------------------------------------------------------------- */
+function computeCategoryScore(checkedObj, catId){
+  const items = (checkedObj && checkedObj[catId]) ? checkedObj[catId] : {};
+  let sum = 0, n = 0;
+  for(const k in items){
+    const st = items[k];
+    const sc = STATE_SCORE[st];
+    if(sc !== null && sc !== undefined){ sum += sc; n++; }
+  }
+  return n>0 ? sum/n : 0;
+}
+function computeAllScores(checkedObj){
+  const out = {};
+  CAT_ORDER.forEach(c=> out[c] = computeCategoryScore(checkedObj, c));
+  return out;
+}
+
+/* ---------------------------------------------------------------
+   Radar / compass SVG
+--------------------------------------------------------------- */
+function radarSVG(scores, size=300, compareScores=null){
+  const n = CAT_ORDER.length;
+  const cx=size/2, cy=size/2, R=size*0.34;
+  const angle = i => (Math.PI*2*i/n) - Math.PI/2;
+  const pt = (i, val) => {
+    const r = R * (val/5);
+    const a = angle(i);
+    return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+  };
+  let rings = "";
+  for(let ring=1; ring<=5; ring++){
+    let pts=[];
+    for(let i=0;i<n;i++){ pts.push(pt(i, ring).join(",")); }
+    rings += `<polygon points="${pts.join(" ")}" fill="none" stroke="#D8CBB2" stroke-width="1"/>`;
+  }
+  let spokes = "";
+  let labels = "";
+  for(let i=0;i<n;i++){
+    spokes += `<line x1="${cx}" y1="${cy}" x2="${pt(i,5)[0]}" y2="${pt(i,5)[1]}" stroke="#D8CBB2" stroke-width="1"/>`;
+    const lp = pt(i,5);
+    labels += `<circle cx="${lp[0]}" cy="${lp[1]}" r="4" fill="${CAT_COLOR[CAT_ORDER[i]]}"/>`;
+  }
+  function shape(vals, color, opacity, dash){
+    let pts=[];
+    for(let i=0;i<n;i++){ pts.push(pt(i, vals[CAT_ORDER[i]]||0).join(",")); }
+    return `<polygon points="${pts.join(" ")}" fill="${color}" fill-opacity="${opacity}" stroke="${color}" stroke-width="2" ${dash?'stroke-dasharray="4 4"':''}/>`;
+  }
+  let compareShape = compareScores ? shape(compareScores, "#8C4650", 0.05, true) : "";
+  let mainShape = shape(scores, "#AD5D68", 0.16, false);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    ${rings}${spokes}${compareShape}${mainShape}${labels}
+  </svg>`;
+}
+
+/* ---------------------------------------------------------------
+   Render
+--------------------------------------------------------------- */
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function itemChip(catId, key, label){
+  const st = state.checked[catId][key] || 0;
+  const cls = STATE_CLASS[st];
+  const sym = STATE_SYMBOL[st];
+  return `<span class="chip st-${cls}" onclick="cycleItem('${catId}','${esc(key)}')"><span class="ic">${sym}</span>${esc(label)}</span>`;
+}
+
+function categoryBlock(catId, discussMode){
+  const t = tr();
+  const defaultComps = t.catComponents[catId];
+  const customComps = state.customComponents[catId];
+  const allComps = defaultComps.map((label,i)=>({key:"d"+i, label})).concat(customComps.map((label,i)=>({key:"c"+i, label})));
+  const chips = allComps.map(c=> itemChip(catId, c.key, c.label)).join("");
+  const score = computeCategoryScore(state.checked, catId);
+  const scoreLabel = state.lang==="ru" ? `Текущий вес области: ${score.toFixed(1)} из 5` : `Current weight: ${score.toFixed(1)} of 5`;
+  let discussHtml = "";
+  if(discussMode){
+    const isAnn = discussMode === "annual";
+    const set = isAnn ? t.catDiscussAnnual : t.catDiscuss;
+    const prompts = (set && set[catId]) ? set[catId] : [];
+    const label = isAnn ? t.discussLabelAnnual : t.discussLabel;
+    const keyPrefix = isAnn ? "disca_" : "disc_";
+    if(prompts.length){
+      discussHtml = `
+    <details class="discuss-box"${isAnn ? " open" : ""}>
+      <summary>${label} <span class="q-count">${prompts.length} ${t.discussHint}</span></summary>
+      <div class="discuss-body">
+        ${prompts.map((p,i)=>{
+          const key = keyPrefix+catId+"_"+i;
+          const val = esc(state.answers[key] || "");
+          return `<div class="disc-q">
+            <label>${p}</label>
+            <textarea oninput="updateAnswer('${key}', this.value)">${val}</textarea>
+          </div>`;
+        }).join("")}
+      </div>
+    </details>`;
+    }
+  }
+  return `
+  <div class="category">
+    <h3 style="color:${CAT_COLOR[catId]}">${t.catNames[catId]}</h3>
+    <div class="cat-desc">${t.catDesc[catId]}</div>
+    <div class="cat-score">${scoreLabel}</div>
+    ${discussHtml}
+    <div class="chips">${chips}</div>
+    <div class="add-row">
+      <input type="text" placeholder="${t.addPlaceholder}" id="add-${catId}" onkeydown="if(event.key==='Enter'){addCustom('${catId}')}">
+      <button onclick="addCustom('${catId}')">${t.addBtn}</button>
+    </div>
+    <textarea class="note" placeholder="${t.notePlaceholder}" oninput="updateNote('${catId}', this.value)">${esc(state.notes[catId])}</textarea>
+  </div>`;
+}
+
+function qa(key, label, multiline=true){
+  const val = esc(state.answers[key] || "");
+  return `<div class="qa"><label>${label}</label>
+    ${multiline ? `<textarea oninput="updateAnswer('${key}', this.value)">${val}</textarea>`
+                : `<input type="text" value="${val}" oninput="updateAnswer('${key}', this.value)">`}
+  </div>`;
+}
+
+function tripletInput(key, placeholder){
+  const val = esc(state.answers[key] || "");
+  return `<input type="text" placeholder="${placeholder}" value="${val}" oninput="updateAnswer('${key}', this.value)">`;
+}
+
+function weeklyBlock(){
+  const t = tr();
+  let out = `<div class="tip-box">${t.weeklyTips}</div>`;
+  out += reviewThemeBlock(t.weeklyQuestions, "w_");
+  return out;
+}
+
+// Reusable six-theme open-question block (temp/connection/conflict/
+// logistics/growth/closing). Used by weekly, quarterly and annual.
+function reviewThemeBlock(questionSet, keyPrefix){
+  const t = tr();
+  let out = "";
+  WEEKLY_SECTIONS.forEach(s=>{
+    const head = t.weeklySectionHeads[s];
+    const qs = questionSet[s] || [];
+    out += `<div class="sub-block"><h3>${head}</h3>`;
+    qs.forEach((q, qi)=>{
+      const key = `${keyPrefix}${s}_${qi}`;
+      const multiline = !(s==="temp" && qi===0);
+      out += qa(key, q, multiline);
+    });
+    out += `</div>`;
+  });
+  return out;
+}
+
+function achievementsBlock(){
+  const t = tr();
+  const cols = t.achieveCols;
+  const fields = ["moment","emotions","why","keep"];
+  const rows = state.achievementRows.map((row, idx)=>{
+    const fieldsHtml = fields.map((f,i)=>`
+      <div class="field-block">
+        <label class="field-label">${cols[i]}</label>
+        <textarea oninput="updateAchieveField(${idx}, '${f}', this.value)">${esc(row[f])}</textarea>
+      </div>`).join("");
+    const canRemove = state.achievementRows.length > 1;
+    return `<div class="growth-row">${fieldsHtml}
+      ${canRemove ? `<div class="row-actions"><button onclick="removeAchieveRow(${idx})">${t.removeRow} ✕</button></div>` : ""}
+    </div>`;
+  }).join("");
+  return `
+  <div class="sub-block">
+    <h3>${t.achieveHead}</h3>
+    <div class="sub-desc">${t.achieveSub}</div>
+    ${rows}
+    <button class="add-row-btn" onclick="addAchieveRow()">${t.addAchieveRow}</button>
+  </div>`;
+}
+
+function gratitudeBlock(){
+  const t = tr();
+  return `
+  <div class="sub-block">
+    <h3>${t.gratitudeHead}</h3>
+    <div class="sub-desc">${t.gratitudeSub}</div>
+    ${qa("gratA", t.gratA)}
+    ${qa("gratB", t.gratB)}
+  </div>`;
+}
+
+function roadmapBlock(){
+  const t = tr();
+  return `
+  <div class="sub-block">
+    <h3>${t.roadmapHead}</h3>
+    <div class="sub-desc">${t.roadmapSub}</div>
+    ${qa("roadQ1", t.roadQ1)}
+    ${qa("roadQ2", t.roadQ2)}
+    ${qa("roadQ3", t.roadQ3)}
+    ${qa("roadQ4", t.roadQ4)}
+  </div>`;
+}
+
+function growthBlock(){
+  const t = tr();
+  const cols = t.growthCols;
+  const fields = ["issue","causes","help","next"];
+  const rows = state.growthRows.map((row, idx)=>{
+    const fieldsHtml = fields.map((f,i)=>`
+      <div class="field-block">
+        <label class="field-label">${cols[i]}</label>
+        <textarea oninput="updateGrowthField(${idx}, '${f}', this.value)">${esc(row[f])}</textarea>
+      </div>`).join("");
+    const canRemove = state.growthRows.length > 1;
+    return `<div class="growth-row">${fieldsHtml}
+      ${canRemove ? `<div class="row-actions"><button onclick="removeGrowthRow(${idx})">${t.removeRow} ✕</button></div>` : ""}
+    </div>`;
+  }).join("");
+  return `
+  <div class="sub-block">
+    <h3>${t.growthHead}</h3>
+    <div class="sub-desc">${t.growthSub}</div>
+    ${rows}
+    <button class="add-row-btn" onclick="addGrowthRow()">${t.addGrowthRow}</button>
+  </div>`;
+}
+
+function boundariesBlock(){
+  const t = tr();
+  return `
+  <div class="sub-block">
+    <h3>${t.boundariesHead}</h3>
+    <div class="sub-desc">${t.boundariesSub}</div>
+    ${qa("boundQ1", t.boundQ1)}
+    ${qa("boundQ2", t.boundQ2)}
+    ${qa("boundQ3", t.boundQ3)}
+    ${qa("boundQ4", t.boundQ4)}
+  </div>`;
+}
+
+function lifeGoalsBlock(){
+  const t = tr();
+  const rows = LIFE_AREAS.map(a=>{
+    const g = state.lifeGoals[a] || {goal:"",support:""};
+    return `<div class="life-row">
+      <h4>${t.lifeAreas[a]}</h4>
+      <div class="field-block">
+        <textarea placeholder="${t.lifeGoalPlaceholder}" oninput="updateLifeGoal('${a}','goal', this.value)">${esc(g.goal)}</textarea>
+      </div>
+      <div class="field-block">
+        <textarea placeholder="${t.lifeSupportPlaceholder}" oninput="updateLifeGoal('${a}','support', this.value)">${esc(g.support)}</textarea>
+      </div>
+    </div>`;
+  }).join("");
+  return `
+  <div class="sub-block">
+    <h3>${t.lifeGoalsHead}</h3>
+    <div class="sub-desc">${t.lifeGoalsSub}</div>
+    ${rows}
+  </div>`;
+}
+
+function bucketBlock(){
+  const t = tr();
+  return `
+  <div class="sub-block">
+    <h3>${t.bucketHead}</h3>
+    <div class="sub-desc">${t.bucketSub}</div>
+    <textarea class="note" style="min-height:90px;" placeholder="${t.bucketPlaceholder}" oninput="updateBucket(this.value)">${esc(state.bucket)}</textarea>
+  </div>`;
+}
+
+function render(){
+  const t = tr();
+  const app = document.getElementById("app");
+  const isAnnual = state.mode === "annual";
+  const isWeekly = state.mode === "weekly";
+  let secIdx = 0;
+  const ROMAN = ["I","II","III","IV","V","VI","VII"];
+  function nextNum(){ return ROMAN[secIdx++] || String(secIdx); }
+
+  let history = "";
+  if(state.history.length === 0){
+    history = `<div class="empty-note">${t.emptyHistory}</div>`;
+  } else {
+    history = `<div class="history-list">` + state.history.map(e=>{
+      const label = e.mode==="annual" ? (state.lang==="ru"?"Год":"Year") : e.mode==="weekly" ? (state.lang==="ru"?"Неделя":"Week") : (state.lang==="ru"?"Квартал":"Quarter");
+      return `<div class="hist-item">
+        <span onclick='openHistory(${JSON.stringify(e.id)})' style="flex:1;cursor:pointer;">
+          <span class="htype">${label}</span> — ${e.date}
+        </span>
+        <span class="hdel" onclick="if(confirm('${t.delConfirm}')){deleteEntryUI('${e.id}')}">✕</span>
+      </div>`;
+    }).join("") + `</div>`;
+  }
+
+  const compareEntry = state.history.length>0 ? state.history[0] : null;
+  const compareScores = compareEntry ? computeAllScores(compareEntry.checked) : null;
+  const currentScores = computeAllScores(state.checked);
+
+  const legendChips = CAT_ORDER.map(c=>`<span><span class="dotc" style="background:${CAT_COLOR[c]}"></span>${t.catNames[c]}</span>`).join("");
+
+  app.innerHTML = `
+    <div class="topbar">
+      <div class="brand">
+        <svg width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="17" fill="none" stroke="#2B2724" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="2.5" fill="#AD5D68"/>
+          <line x1="20" y1="6" x2="20" y2="15" stroke="#AD5D68" stroke-width="2" stroke-linecap="round"/>
+          <line x1="20" y1="25" x2="20" y2="34" stroke="#5F7864" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-text">
+          <div class="eyebrow">${t.eyebrow}</div>
+          <h1>${t.title}</h1>
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <button class="${state.lang==='ru'?'active':''}" onclick="setLang('ru')">RU</button>
+        <button class="${state.lang==='en'?'active':''}" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+
+    <div class="intro">
+      <p class="lede">${t.lede}</p>
+      <p>${t.introP1}</p>
+      <details class="why">
+        <summary>${t.whySummary}</summary>
+        <p>${t.whyP1}</p>
+        <p>${t.whyP2}</p>
+        <ul>${t.whyList.map(li=>`<li>${li}</li>`).join("")}</ul>
+      </details>
+    </div>
+
+    <div class="mode-select">
+      <div class="mode-card ${isWeekly?'active':''}" onclick="setMode('weekly')">
+        <div class="m-title">${t.weeklyTitle}</div>
+        <div class="m-sub">${t.weeklySub}</div>
+      </div>
+      <div class="mode-card ${(!isWeekly && !isAnnual)?'active':''}" onclick="setMode('quarterly')">
+        <div class="m-title">${t.quarterlyTitle}</div>
+        <div class="m-sub">${t.quarterlySub}</div>
+      </div>
+      <div class="mode-card ${isAnnual?'active':''}" onclick="setMode('annual')">
+        <div class="m-title">${t.annualTitle}</div>
+        <div class="m-sub">${t.annualSub}</div>
+      </div>
+    </div>
+
+    <div class="download-row">
+      <button class="btn primary" onclick="window.print()">${t.downloadFillBtn}</button>
+      <span class="dl-hint">${t.downloadFillHintPre}${isWeekly?t.weeklyTitle:(isAnnual?t.annualTitle:t.quarterlyTitle)}${t.downloadFillHintPost}</span>
+    </div>
+
+    <div class="date-row">
+      <span>${t.dateLabel}</span>
+      <input type="date" value="${state.date}" onchange="updateDate(this.value)">
+    </div>
+
+    ${!isWeekly ? `
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.compassHead}</h2></div>
+      <div class="section-sub">${t.compassSub}</div>
+      <div class="compass-wrap">${radarSVG(currentScores, 300, compareScores)}</div>
+      <div class="compass-legend">${legendChips}</div>
+      ${(!isAnnual && compareScores) ? `<div class="discuss-prompt" style="max-width:420px;margin-left:auto;margin-right:auto;">${t.compassQuarterlyNote}</div>` : ""}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.menuHead}</h2></div>
+      <div class="section-sub">${t.menuSub}</div>
+      <div class="rate-legend">
+        <span class="li"><span class="ic st-must">${STATE_SYMBOL[1]}</span>${t.rateMust}</span>
+        <span class="li"><span class="ic st-like">${STATE_SYMBOL[2]}</span>${t.rateLike}</span>
+        <span class="li"><span class="ic st-maybe">${STATE_SYMBOL[3]}</span>${t.rateMaybe}</span>
+        <span class="li"><span class="ic st-off">${STATE_SYMBOL[4]}</span>${t.rateOff}</span>
+      </div>
+      ${CAT_ORDER.map(c=>categoryBlock(c, isWeekly ? null : (isAnnual ? "annual" : "quarterly"))).join("")}
+    </div>
+    ` : ""}
+
+    ${isAnnual ? `
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.annualPastHead}</h2></div>
+      <div class="section-sub">${t.annualPastSub}</div>
+      ${qa("pastQ1", t.pastQ1)}
+      ${achievementsBlock()}
+      ${qa("pastQ2", t.pastQ2)}
+      ${qa("pastQ3", t.pastQ3)}
+      ${gratitudeBlock()}
+      ${qa("pastQ4", t.pastQ4)}
+      <div class="qa"><label>${t.pastWordsHead}</label>
+        <div class="triplet">
+          ${tripletInput("pastWord1", "1")}
+          ${tripletInput("pastWord2", "2")}
+          ${tripletInput("pastWord3", "3")}
+        </div>
+      </div>
+      ${growthBlock()}
+      ${boundariesBlock()}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.reviewByThemeHead}</h2></div>
+      <div class="section-sub">${t.reviewByThemeSubAnnual}</div>
+      ${reviewThemeBlock(t.annualReview, "ar_")}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.annualFutureHead}</h2></div>
+      <div class="section-sub">${t.annualFutureSub}</div>
+      ${qa("futureQ1", t.futureQ1)}
+      ${qa("futureQ2", t.futureQ2)}
+      ${qa("futureQ3", t.futureQ3)}
+      <div class="qa"><label>${t.futureTripletHead}</label>
+        <div class="triplet">
+          ${tripletInput("futureT1", t.futureT1)}
+          ${tripletInput("futureT2", t.futureT2)}
+          ${tripletInput("futureT3", t.futureT3)}
+        </div>
+      </div>
+      ${qa("wordYear", t.wordYearHead, false)}
+      ${lifeGoalsBlock()}
+      ${roadmapBlock()}
+      ${bucketBlock()}
+    </div>
+    ` : isWeekly ? `
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.weeklyTitle}</h2></div>
+      <div class="section-sub">${t.weeklySub}</div>
+      ${weeklyBlock()}
+    </div>
+    ` : `
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.quarterlyQHead}</h2></div>
+      ${qa("q1", t.q1)}
+      ${qa("q2", t.q2)}
+      ${qa("q3", t.q3)}
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">${nextNum()}</span><h2>${t.reviewByThemeHead}</h2></div>
+      <div class="section-sub">${t.reviewByThemeSub}</div>
+      ${reviewThemeBlock(t.quarterlyReview, "qr_")}
+    </div>
+    `}
+
+    <div class="actions">
+      <button class="btn primary" onclick="saveEntry()">${t.saveBtn}</button>
+      <button class="btn ghost" onclick="window.print()">${t.printBtn}</button>
+      <span class="save-msg" id="saveMsg">${t.saved}</span>
+    </div>
+
+    <div class="section history-section" style="margin-top:36px;">
+      <div class="section-head"><h2>${t.historyHead}</h2></div>
+      <div class="section-sub">${t.historySub}</div>
+      ${history}
+    </div>
+
+    <footer>${t.footer}</footer>
+  `;
+}
+
+/* ---------------------------------------------------------------
+   Handlers (exposed globally)
+--------------------------------------------------------------- */
+function setLang(l){ state.lang = l; render(); }
+function setMode(m){ state.mode = m; render(); }
+function updateDate(v){ state.date = v; }
+function updateNote(cat, v){ state.notes[cat] = v; }
+function updateAnswer(key, v){ state.answers[key] = v; }
+function cycleItem(cat, key){
+  const cur = state.checked[cat][key] || 0;
+  state.checked[cat][key] = (cur + 1) % 5;
+  render();
+}
+function updateAchieveField(idx, field, val){ state.achievementRows[idx][field] = val; }
+function addAchieveRow(){ state.achievementRows.push({moment:"",emotions:"",why:"",keep:""}); render(); }
+function removeAchieveRow(idx){ state.achievementRows.splice(idx,1); if(state.achievementRows.length===0){ state.achievementRows=[{moment:"",emotions:"",why:"",keep:""}]; } render(); }
+function updateGrowthField(idx, field, val){ state.growthRows[idx][field] = val; }
+function addGrowthRow(){ state.growthRows.push({issue:"",causes:"",help:"",next:""}); render(); }
+function removeGrowthRow(idx){ state.growthRows.splice(idx,1); if(state.growthRows.length===0){ state.growthRows=[{issue:"",causes:"",help:"",next:""}]; } render(); }
+function updateLifeGoal(area, field, val){ if(!state.lifeGoals[area]) state.lifeGoals[area]={goal:"",support:""}; state.lifeGoals[area][field] = val; }
+function updateBucket(val){ state.bucket = val; }
+function addCustom(cat){
+  const input = document.getElementById("add-"+cat);
+  const val = input.value.trim();
+  if(!val) return;
+  state.customComponents[cat].push(val);
+  render();
+}
+function openHistory(id){
+  const entry = state.history.find(e=>e.id===id);
+  if(entry) loadEntryIntoForm(entry);
+}
+function deleteEntryUI(id){ deleteEntry(id); }
+
+window.saveEntry = saveEntry;
+window.setLang = setLang;
+window.setMode = setMode;
+window.updateDate = updateDate;
+window.updateNote = updateNote;
+window.updateAnswer = updateAnswer;
+window.cycleItem = cycleItem;
+window.updateGrowthField = updateGrowthField;
+window.addGrowthRow = addGrowthRow;
+window.removeGrowthRow = removeGrowthRow;
+window.updateAchieveField = updateAchieveField;
+window.addAchieveRow = addAchieveRow;
+window.removeAchieveRow = removeAchieveRow;
+window.updateLifeGoal = updateLifeGoal;
+window.updateBucket = updateBucket;
+window.addCustom = addCustom;
+window.openHistory = openHistory;
+window.deleteEntryUI = deleteEntryUI;
+
+/* ---------------------------------------------------------------
+   Init
+--------------------------------------------------------------- */
+(async function init(){
+  render();
+  await loadHistory();
+  render();
+})();
+</script>
+</body>
+</html>
